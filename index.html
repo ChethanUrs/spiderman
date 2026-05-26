@@ -10,7 +10,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito+Sans:ital,wght@0,300;0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
-  
+  <!-- Immersive Animation Engines (GSAP, Three.js, Lenis) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+
   <style>
     /* ==========================================================================
        1. CORE DESIGN SYSTEM & VARIABLES
@@ -2332,6 +2337,395 @@
     .project-card-container:hover .project-thumbnail-box::after {
       opacity: 1;
     }
+
+    /* ==========================================================================
+       EXTRA: ULTRAMODERN HUD & GLASSMORPHISM DESIGN SYSTEM
+       ========================================================================== */
+    :root {
+      --hud-neon-red: #ff003c;
+      --hud-neon-blue: #00d2ff;
+      --hud-glow: rgba(0, 210, 255, 0.45);
+      --hud-bg: rgba(6, 6, 16, 0.72);
+      --hud-border-color: rgba(0, 210, 255, 0.15);
+    }
+
+    /* Interactive Holographic HUD Scanline Background Grid */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: 
+        linear-gradient(rgba(18, 18, 30, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+        linear-gradient(90deg, rgba(226, 54, 54, 0.02), rgba(0, 210, 255, 0.02));
+      background-size: 100% 4px, 40px 40px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.35;
+    }
+
+    /* Cyber HUD Card Overhaul */
+    .project-card-inner {
+      background: var(--hud-bg) !important;
+      backdrop-filter: blur(12px) saturate(180%) !important;
+      border: 1px solid var(--hud-border-color) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 210, 255, 0.05) !important;
+      position: relative;
+    }
+
+    /* HUD Corner Crosshair Vectors */
+    .project-card-inner::before, .project-card-inner::after {
+      content: '' !important;
+      position: absolute !important;
+      width: 10px !important;
+      height: 10px !important;
+      border: none !important;
+      transition: all 0.3s ease !important;
+      opacity: 0.82 !important;
+      pointer-events: none !important;
+    }
+
+    /* corner framing brackets */
+    .project-card-inner::before {
+      top: 6px !important;
+      left: 6px !important;
+      border-top: 2px solid var(--hud-neon-blue) !important;
+      border-left: 2px solid var(--hud-neon-blue) !important;
+      transform: none !important;
+    }
+
+    .project-card-inner::after {
+      bottom: 6px !important;
+      right: 6px !important;
+      border-bottom: 2px solid var(--hud-neon-blue) !important;
+      border-right: 2px solid var(--hud-neon-blue) !important;
+      transform: none !important;
+    }
+
+    .project-card-container:hover .project-card-inner {
+      border-color: var(--hud-neon-red) !important;
+      box-shadow: 0 0 25px rgba(255, 0, 60, 0.4), inset 0 0 15px rgba(255, 0, 60, 0.1) !important;
+    }
+
+    .project-card-container:hover .project-card-inner::before {
+      border-color: var(--hud-neon-red) !important;
+      top: 3px !important;
+      left: 3px !important;
+    }
+
+    .project-card-container:hover .project-card-inner::after {
+      border-color: var(--hud-neon-red) !important;
+      bottom: 3px !important;
+      right: 3px !important;
+    }
+
+    /* Live glowing digital telemetry blinks */
+    .project-thumbnail-box::before {
+      content: 'SYS.TELEMETRY: ACTIVE';
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-family: monospace;
+      font-size: 9px;
+      color: var(--hud-neon-blue);
+      letter-spacing: 1px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 2px 6px;
+      border: 1px solid rgba(0, 210, 255, 0.3);
+      border-radius: 3px;
+      z-index: 10;
+      opacity: 0.8;
+      pointer-events: none;
+      animation: hud-telemetry-blink 1.5s infinite step-end;
+    }
+    @keyframes hud-telemetry-blink {
+      50% { opacity: 0.35; }
+    }
+
+    /* Neon Glitch Pulsing Effects */
+    .neon-pulse-element {
+      animation: neon-glow-pulse 1.8s infinite alternate;
+    }
+
+    @keyframes neon-glow-pulse {
+      0% {
+        box-shadow: 0 0 5px rgba(255, 0, 60, 0.2), inset 0 0 2px rgba(255, 0, 60, 0.1);
+      }
+      100% {
+        box-shadow: 0 0 15px rgba(255, 0, 60, 0.6), inset 0 0 5px rgba(255, 0, 60, 0.2);
+      }
+    }
+
+    /* ==========================================================================
+       EXTRA: 15 ADVANCED SPIDEY-HUD CINEMATIC ANIMATIONS
+       ========================================================================== */
+
+    /* 1. Futuristic Reticle Cursor Overlay */
+    #hud-reticle-cursor {
+      position: fixed;
+      width: 44px;
+      height: 44px;
+      border: 1px dashed var(--hud-neon-blue);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 100000;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #hud-reticle-cursor::before {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--hud-neon-red);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--hud-neon-red);
+    }
+    #hud-reticle-cursor::after {
+      content: '';
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border: 1px solid rgba(0, 210, 255, 0.25);
+      border-left-color: var(--hud-neon-blue);
+      border-right-color: var(--hud-neon-blue);
+      border-radius: 50%;
+      animation: spin-hud-reticle 4s linear infinite;
+    }
+    @keyframes spin-hud-reticle {
+      100% { transform: rotate(360deg); }
+    }
+    .hud-reticle-crosshair {
+      position: absolute;
+      width: 100vw;
+      height: 1px;
+      background: rgba(0, 210, 255, 0.04);
+    }
+    .hud-reticle-crosshair-v {
+      position: absolute;
+      height: 100vh;
+      width: 1px;
+      background: rgba(0, 210, 255, 0.04);
+    }
+    .hud-reticle-text {
+      position: absolute;
+      top: 55px;
+      left: 15px;
+      font-family: monospace;
+      font-size: 7px;
+      color: var(--hud-neon-blue);
+      white-space: nowrap;
+      letter-spacing: 1px;
+      background: rgba(0,0,0,0.65);
+      padding: 1px 5px;
+      border-radius: 2px;
+      border: 1px solid var(--hud-border-color);
+      opacity: 0.8;
+    }
+
+    /* 2. Scrolling Digital Scanning Laser Line */
+    #hud-laser-scanner {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--hud-neon-red), transparent);
+      box-shadow: 0 0 12px var(--hud-neon-red), 0 0 4px var(--hud-neon-red);
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.35;
+      animation: sweep-laser-line 8s linear infinite;
+    }
+    @keyframes sweep-laser-line {
+      0% { top: -5%; }
+      100% { top: 105%; }
+    }
+
+    /* 3. Spider-Sense Radar Sonar Ripple */
+    .radar-sonar-wave {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--hud-neon-red);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 15px var(--hud-neon-red);
+      animation: sonar-expansion-wave 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    }
+    @keyframes sonar-expansion-wave {
+      0% { width: 10px; height: 10px; opacity: 1; }
+      100% { width: 180px; height: 180px; opacity: 0; border-width: 0.5px; }
+    }
+
+    /* 4. Dynamic SVG Web-Sling Scroll-to-Top Button */
+    #spidey-scroll-top-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 48px;
+      height: 48px;
+      background: rgba(6, 6, 16, 0.85);
+      border: 2px solid var(--hud-neon-blue);
+      border-radius: 50%;
+      z-index: 9999;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      opacity: 0;
+      transform: translateY(20px) scale(0.8);
+      pointer-events: none;
+    }
+    #spidey-scroll-top-btn.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    #spidey-scroll-top-btn:hover {
+      border-color: var(--hud-neon-red);
+      box-shadow: 0 0 20px rgba(255, 0, 60, 0.5);
+      transform: scale(1.1);
+    }
+    #spidey-scroll-top-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--hud-neon-blue);
+      transition: fill 0.3s;
+    }
+    #spidey-scroll-top-btn:hover svg {
+      fill: var(--hud-neon-red);
+    }
+
+    /* 5. Sound Visualizer Pulse Bar */
+    .sound-waves-visualizer {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+      margin-left: 6px;
+    }
+    .sv-bar {
+      width: 2px;
+      background-color: var(--hud-neon-blue);
+      border-radius: 1px;
+      height: 2px;
+      transition: height 0.15s ease;
+    }
+    .sound-waves-visualizer.active .sv-bar {
+      animation: sound-visual-jump 0.6s ease infinite alternate;
+    }
+    .sound-waves-visualizer.active .sv-bar:nth-child(1) { animation-delay: 0.1s; }
+    .sound-waves-visualizer.active .sv-bar:nth-child(2) { animation-delay: 0.3s; }
+    .sound-waves-visualizer.active .sv-bar:nth-child(3) { animation-delay: 0.2s; }
+    @keyframes sound-visual-jump {
+      0% { height: 2px; background-color: var(--hud-neon-blue); }
+      100% { height: 12px; background-color: var(--hud-neon-red); }
+    }
+
+    /* 6. Flickering Neon Header Text */
+    .comic-header-title {
+      animation: global-text-glow 2.5s ease-in-out infinite alternate;
+    }
+    .flicker-char {
+      display: inline-block;
+      animation: cyber-flicker 5s infinite alternate;
+    }
+    .flicker-char:nth-child(2n) { animation-delay: 0.8s; }
+    .flicker-char:nth-child(3n) { animation-delay: 1.5s; }
+    @keyframes cyber-flicker {
+      0%, 93%, 98%, 100% { opacity: 1; filter: drop-shadow(0 0 10px var(--spider-glow-r)); }
+      94%, 97% { opacity: 0.18; filter: none; }
+    }
+
+    /* 7. Virtual Neon Particle Sparks */
+    .neon-spark-particle {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      animation: fade-particle-spark 0.6s ease-out forwards;
+    }
+    @keyframes fade-particle-spark {
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.1); }
+    }
+
+    /* 8. Concentric Spider-Verse Portal Opening Expanders */
+    .portal-octagon-ring {
+      position: fixed;
+      top: 50%; left: 50%;
+      width: 10px; height: 10px;
+      border: 2px solid var(--hud-neon-blue);
+      border-radius: 20%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%) rotate(0deg);
+      opacity: 0;
+    }
+    .portal-octagon-active {
+      animation: expand-portal-octagon 0.9s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+    }
+    @keyframes expand-portal-octagon {
+      0% { width: 10px; height: 10px; opacity: 1; transform: translate(-50%, -50%) rotate(0deg); border-color: var(--hud-neon-blue); }
+      50% { border-color: var(--hud-neon-red); }
+      100% { width: 150vw; height: 150vh; opacity: 0; transform: translate(-50%, -50%) rotate(180deg); }
+    }
+
+    /* 9. Glowing CLI Console Terminal box */
+    .cli-hud-terminal-container {
+      background: rgba(4, 4, 10, 0.88);
+      border: 1px solid var(--hud-border-color);
+      border-radius: 6px;
+      padding: 1.2rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #00ff66;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      margin-top: 1.5rem;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+    .cli-prompt-line::before {
+      content: 'spider-net@rohit-mca:~$ ';
+      color: var(--hud-neon-blue);
+    }
+    .cli-log-secure {
+      color: var(--hud-neon-red);
+    }
+
+    /* 10. Sliding Corner Brackets on Project Cards */
+    .project-card-container:hover .project-card-inner::before {
+      top: -3px !important;
+      left: -3px !important;
+      width: 16px !important;
+      height: 16px !important;
+      border-top-width: 3px !important;
+      border-left-width: 3px !important;
+    }
+    .project-card-container:hover .project-card-inner::after {
+      bottom: -3px !important;
+      right: -3px !important;
+      width: 16px !important;
+      height: 16px !important;
+      border-bottom-width: 3px !important;
+      border-right-width: 3px !important;
+    }
+
+    /* 11. Staggered 3D Flip comic-panels */
+    .in-view .about-panel-card {
+      animation: comic-panel-flip 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    }
+    @keyframes comic-panel-flip {
+      0% { transform: rotateY(90deg) scale(0.85); opacity: 0; }
+      100% { transform: rotateY(0) scale(1); opacity: 1; }
+    }
   </style>
 </head>
 <body class="halftone-bg">
@@ -3307,6 +3701,31 @@
        ========================================================================== -->
   <script>
     /* ==========================================================================
+       0. HIGH-END SMOOTH SCROLLING (LENIS) & GSAP SYSTEM INTEGRATION
+       ========================================================================== */
+    gsap.registerPlugin(ScrollTrigger);
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      smoothTouch: false,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 2.0,
+      infinite: false,
+    });
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+
+    gsap.ticker.lagSmoothing(0);
+
+    /* ==========================================================================
        A. SOUND DESIGN (WEB AUDIO API SYNTHESIZER ENGINE)
        ========================================================================== */
     class SoundFXEngine {
@@ -3618,116 +4037,326 @@
 
 
     /* ==========================================================================
-       E. INTERACTIVE AMBIENT WEBS CANVAS (HERO BG PARTICLES)
+       E. INTERACTIVE AMBIENT WEBS CANVAS (THREE.JS 3D WEB & RAIN GRAPHICS ENGINE)
        ========================================================================== */
     const ambientCanvas = document.getElementById('ambient-particles-canvas');
-    const aCtx = ambientCanvas.getContext('2d');
-
-    let particles = [];
-    let width = 0;
-    let height = 0;
-    let mouse = { x: null, y: null, radius: 120 };
-
-    function resizeAmbientCanvas() {
-      width = ambientCanvas.width = ambientCanvas.offsetWidth;
-      height = ambientCanvas.height = ambientCanvas.offsetHeight;
-      initParticles();
+    
+    // Scene setup
+    const scene = new THREE.Scene();
+    
+    // Perspective camera with depth
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.z = 220;
+    
+    // WebGL Renderer
+    const renderer = new THREE.WebGLRenderer({
+      canvas: ambientCanvas,
+      alpha: true,
+      antialias: true
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    
+    // Mouse interaction vectors
+    let mouse3D = new THREE.Vector3(0, 0, -9999);
+    let targetMouse3D = new THREE.Vector3(0, 0, -9999);
+    
+    // Helper to generate glowing particle textures programmatically
+    function createGlowTexture(colorStr) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 32;
+      canvas.height = 32;
+      const ctx = canvas.getContext('2d');
+      const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      gradient.addColorStop(0.2, colorStr);
+      gradient.addColorStop(0.5, colorStr.replace('1)', '0.3)'));
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 32, 32);
+      return new THREE.CanvasTexture(canvas);
     }
-
-    class Particle {
-      constructor() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.baseX = this.x;
-        this.baseY = this.y;
-        this.size = Math.random() * 2 + 1;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
-        this.density = (Math.random() * 20) + 10;
-      }
-
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-
-        if (this.x < 0 || this.x > width) this.vx *= -1;
-        if (this.y < 0 || this.y > height) this.vy *= -1;
-
-        if (mouse.x !== null) {
-          const dx = mouse.x - this.x;
-          const dy = mouse.y - this.y;
-          const distance = Math.hypot(dx, dy);
-
-          if (distance < mouse.radius) {
-            const force = (mouse.radius - distance) / mouse.radius;
-            const forceX = (dx / distance) * force * this.density;
-            const forceY = (dy / distance) * force * this.density;
-
-            this.x -= forceX;
-            this.y -= forceY;
-          }
-        }
-      }
-
-      draw() {
-        aCtx.fillStyle = 'rgba(255,255,255,0.4)';
-        aCtx.beginPath();
-        aCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        aCtx.fill();
-      }
-    }
-
-    function initParticles() {
-      particles = [];
-      const density = Math.min(220, Math.floor((width * height) / 8000));
-      for (let i = 0; i < density; i++) {
-        particles.push(new Particle());
-      }
-    }
-
-    function animateParticles() {
-      aCtx.clearRect(0, 0, width, height);
-
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const distance = Math.hypot(dx, dy);
-
-          if (distance < 90) {
-            const opacity = (1 - (distance / 90)) * 0.12;
-            aCtx.strokeStyle = `rgba(255,255,255,${opacity})`;
-            aCtx.lineWidth = 0.5;
-            aCtx.beginPath();
-            aCtx.moveTo(particles[i].x, particles[i].y);
-            aCtx.lineTo(particles[j].x, particles[j].y);
-            aCtx.stroke();
-          }
-        }
-      }
-
-      particles.forEach(p => {
-        p.update();
-        p.draw();
+    
+    const textureRed = createGlowTexture('rgba(226, 54, 54, 1)');
+    const textureBlue = createGlowTexture('rgba(0, 210, 255, 1)');
+    const textureWhite = createGlowTexture('rgba(255, 255, 255, 1)');
+    
+    // Construct particles
+    const particleCount = 280;
+    const particlesData = [];
+    
+    const posRed = [];
+    const posBlue = [];
+    const posWhite = [];
+    
+    for (let i = 0; i < particleCount; i++) {
+      const x = (Math.random() - 0.5) * 450;
+      const y = (Math.random() - 0.5) * 350;
+      const z = (Math.random() - 0.5) * 200;
+      
+      const baseX = x;
+      const baseY = y;
+      const baseZ = z;
+      
+      const vx = (Math.random() - 0.5) * 0.4;
+      const vy = (Math.random() - 0.5) * 0.4;
+      const vz = (Math.random() - 0.5) * 0.4;
+      
+      const type = Math.random() < 0.4 ? 'red' : (Math.random() < 0.7 ? 'blue' : 'white');
+      
+      particlesData.push({
+        x, y, z,
+        baseX, baseY, baseZ,
+        vx, vy, vz,
+        type,
+        density: Math.random() * 15 + 8
       });
-
-      requestAnimationFrame(animateParticles);
+      
+      if (type === 'red') {
+        posRed.push(x, y, z);
+      } else if (type === 'blue') {
+        posBlue.push(x, y, z);
+      } else {
+        posWhite.push(x, y, z);
+      }
     }
-
-    ambientCanvas.addEventListener('mousemove', (e) => {
+    
+    const geomRed = new THREE.BufferGeometry();
+    const geomBlue = new THREE.BufferGeometry();
+    const geomWhite = new THREE.BufferGeometry();
+    
+    geomRed.setAttribute('position', new THREE.Float32BufferAttribute(posRed, 3));
+    geomBlue.setAttribute('position', new THREE.Float32BufferAttribute(posBlue, 3));
+    geomWhite.setAttribute('position', new THREE.Float32BufferAttribute(posWhite, 3));
+    
+    const matRed = new THREE.PointsMaterial({
+      size: 6,
+      map: textureRed,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    
+    const matBlue = new THREE.PointsMaterial({
+      size: 6,
+      map: textureBlue,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    
+    const matWhite = new THREE.PointsMaterial({
+      size: 4,
+      map: textureWhite,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    
+    const pointsRed = new THREE.Points(geomRed, matRed);
+    const pointsBlue = new THREE.Points(geomBlue, matBlue);
+    const pointsWhite = new THREE.Points(geomWhite, matWhite);
+    
+    scene.add(pointsRed);
+    scene.add(pointsBlue);
+    scene.add(pointsWhite);
+    
+    // Line Segments setup
+    const lineMaxConnections = 450;
+    const linePositions = new Float32Array(lineMaxConnections * 2 * 3);
+    const lineColors = new Float32Array(lineMaxConnections * 2 * 3);
+    
+    const lineGeometry = new THREE.BufferGeometry();
+    lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+    lineGeometry.setAttribute('color', new THREE.BufferAttribute(lineColors, 3));
+    
+    const lineMaterial = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.28,
+      blending: THREE.AdditiveBlending,
+      linewidth: 1
+    });
+    
+    const webMeshLines = new THREE.LineSegments(lineGeometry, lineMaterial);
+    scene.add(webMeshLines);
+    
+    // Cyberpunk NYC Rain particles setup
+    const rainCount = 120;
+    const rainPositions = new Float32Array(rainCount * 3);
+    const rainData = [];
+    
+    for (let i = 0; i < rainCount; i++) {
+      const rx = (Math.random() - 0.5) * 500;
+      const ry = Math.random() * 300 - 150;
+      const rz = (Math.random() - 0.5) * 150;
+      
+      rainPositions[i * 3] = rx;
+      rainPositions[i * 3 + 1] = ry;
+      rainPositions[i * 3 + 2] = rz;
+      
+      rainData.push({
+        speed: Math.random() * 3 + 4,
+        drift: (Math.random() - 0.5) * 0.5
+      });
+    }
+    
+    const rainGeometry = new THREE.BufferGeometry();
+    rainGeometry.setAttribute('position', new THREE.BufferAttribute(rainPositions, 3));
+    
+    const rainTexture = createGlowTexture('rgba(0, 210, 255, 0.8)');
+    const rainMaterial = new THREE.PointsMaterial({
+      size: 3,
+      map: rainTexture,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    
+    const rainPoints = new THREE.Points(rainGeometry, rainMaterial);
+    scene.add(rainPoints);
+    
+    function resizeThreeScene() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+    window.addEventListener('resize', resizeThreeScene);
+    
+    window.addEventListener('mousemove', (e) => {
       const rect = ambientCanvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
+      const clientX = e.clientX - rect.left;
+      const clientY = e.clientY - rect.top;
+      const mouseX = (clientX / rect.width) * 2 - 1;
+      const mouseY = -(clientY / rect.height) * 2 + 1;
+      targetMouse3D.set(mouseX * 220, mouseY * 170, 0);
     });
-
-    ambientCanvas.addEventListener('mouseleave', () => {
-      mouse.x = null;
-      mouse.y = null;
+    
+    window.addEventListener('mouseleave', () => {
+      targetMouse3D.set(0, 0, -9999);
     });
-
-    window.addEventListener('resize', resizeAmbientCanvas);
-    resizeAmbientCanvas();
-    animateParticles();
+    
+    function animateThreeScene() {
+      requestAnimationFrame(animateThreeScene);
+      
+      mouse3D.lerp(targetMouse3D, 0.08);
+      
+      let rIdx = 0;
+      let bIdx = 0;
+      let wIdx = 0;
+      
+      const posRedAttr = geomRed.getAttribute('position');
+      const posBlueAttr = geomBlue.getAttribute('position');
+      const posWhiteAttr = geomWhite.getAttribute('position');
+      
+      particlesData.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.z += p.vz;
+        
+        if (Math.abs(p.x) > 230) p.vx *= -1;
+        if (Math.abs(p.y) > 180) p.vy *= -1;
+        if (Math.abs(p.z) > 100) p.vz *= -1;
+        
+        if (mouse3D.z > -5000) {
+          const dx = p.x - mouse3D.x;
+          const dy = p.y - mouse3D.y;
+          const dz = p.z - mouse3D.z;
+          const dist = Math.hypot(dx, dy, dz);
+          
+          if (dist < 75) {
+            const force = (75 - dist) / 75;
+            p.x += (dx / dist) * force * p.density * 0.45;
+            p.y += (dy / dist) * force * p.density * 0.45;
+            p.z += (dz / dist) * force * p.density * 0.45;
+          }
+        }
+        
+        p.x += (p.baseX - p.x) * 0.04;
+        p.y += (p.baseY - p.y) * 0.04;
+        p.z += (p.baseZ - p.z) * 0.04;
+        
+        if (p.type === 'red') {
+          posRedAttr.setXYZ(rIdx++, p.x, p.y, p.z);
+        } else if (p.type === 'blue') {
+          posBlueAttr.setXYZ(bIdx++, p.x, p.y, p.z);
+        } else {
+          posWhiteAttr.setXYZ(wIdx++, p.x, p.y, p.z);
+        }
+      });
+      
+      posRedAttr.needsUpdate = true;
+      posBlueAttr.needsUpdate = true;
+      posWhiteAttr.needsUpdate = true;
+      
+      let lineSegmentsCount = 0;
+      const linePosAttr = lineGeometry.getAttribute('position');
+      const lineColAttr = lineGeometry.getAttribute('color');
+      
+      for (let i = 0; i < particleCount; i++) {
+        const pi = particlesData[i];
+        for (let j = i + 1; j < particleCount; j++) {
+          if (lineSegmentsCount >= lineMaxConnections) break;
+          const pj = particlesData[j];
+          
+          const dx = pi.x - pj.x;
+          const dy = pi.y - pj.y;
+          const dz = pi.z - pj.z;
+          const dist = Math.hypot(dx, dy, dz);
+          
+          if (dist < 46) {
+            const pIdx = lineSegmentsCount * 2;
+            
+            linePosAttr.setXYZ(pIdx, pi.x, pi.y, pi.z);
+            linePosAttr.setXYZ(pIdx + 1, pj.x, pj.y, pj.z);
+            
+            const colorR1 = pi.type === 'red' ? 1.0 : 0.0;
+            const colorB1 = pi.type === 'blue' ? 1.0 : 0.5;
+            const colorR2 = pj.type === 'red' ? 1.0 : 0.0;
+            const colorB2 = pj.type === 'blue' ? 1.0 : 0.5;
+            
+            lineColAttr.setXYZ(pIdx, colorR1, 0.2, colorB1);
+            lineColAttr.setXYZ(pIdx + 1, colorR2, 0.2, colorB2);
+            
+            lineSegmentsCount++;
+          }
+        }
+      }
+      
+      lineGeometry.setDrawRange(0, lineSegmentsCount * 2);
+      linePosAttr.needsUpdate = true;
+      lineColAttr.needsUpdate = true;
+      
+      const rainPosAttr = rainGeometry.getAttribute('position');
+      for (let i = 0; i < rainCount; i++) {
+        let rx = rainPosAttr.getX(i);
+        let ry = rainPosAttr.getY(i);
+        let rz = rainPosAttr.getZ(i);
+        
+        const data = rainData[i];
+        ry -= data.speed;
+        rx += data.drift;
+        
+        if (ry < -180) {
+          ry = 180;
+          rx = (Math.random() - 0.5) * 500;
+        }
+        
+        rainPosAttr.setXYZ(i, rx, ry, rz);
+      }
+      rainPosAttr.needsUpdate = true;
+      
+      pointsRed.rotation.y += 0.001;
+      pointsBlue.rotation.y += 0.0015;
+      pointsWhite.rotation.y += 0.0008;
+      webMeshLines.rotation.y += 0.001;
+      
+      renderer.render(scene, camera);
+    }
+    
+    animateThreeScene();
 
 
     /* ==========================================================================
@@ -3970,6 +4599,111 @@
 
     window.addEventListener('scroll', handleScrollTracker);
 
+    /* ==========================================================================
+       I_B. DYNAMIC WEB-SWING SECTION TRANSITIONS (GSAP + SCROLLTRIGGER)
+       ========================================================================== */
+    const swingOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    swingOverlay.setAttribute('id', 'section-web-swing-overlay');
+    swingOverlay.setAttribute('viewBox', '0 0 100 100');
+    swingOverlay.setAttribute('preserveAspectRatio', 'none');
+    
+    const swingStyle = document.createElement('style');
+    swingStyle.textContent = `
+      #section-web-swing-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        pointer-events: none;
+        z-index: 99999;
+        opacity: 0;
+      }
+      .web-swing-thread {
+        stroke: rgba(255, 255, 255, 0.92);
+        stroke-width: 4;
+        stroke-linecap: round;
+        filter: drop-shadow(0 0 12px var(--spider-red)) drop-shadow(0 0 4px #00d2ff);
+      }
+    `;
+    document.head.appendChild(swingStyle);
+    
+    const swingPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    swingPath.setAttribute('id', 'web-swing-path');
+    swingPath.setAttribute('class', 'web-swing-thread');
+    swingPath.setAttribute('d', 'M -10,-10 Q 50,-10 110,-10');
+    swingPath.setAttribute('fill', 'none');
+    
+    swingOverlay.appendChild(swingPath);
+    document.body.appendChild(swingOverlay);
+    
+    function triggerWebSwingSwipe() {
+      soundEngine.playWhoosh();
+      const path = document.getElementById('web-swing-path');
+      const overlay = document.getElementById('section-web-swing-overlay');
+      
+      path.setAttribute('d', 'M -10,-20 Q 50,-20 110,-20');
+      
+      const tl = gsap.timeline();
+      tl.to(overlay, { opacity: 1, duration: 0.05 })
+        .to(path, {
+          attr: { d: 'M -20,120 Q 50,50 120,120' },
+          duration: 0.45,
+          ease: 'power3.inOut'
+        })
+        .to(path, {
+          attr: { d: 'M -20,120 Q 50,120 120,120' },
+          duration: 0.2,
+          ease: 'power2.out'
+        })
+        .to(overlay, { opacity: 0, duration: 0.15 });
+    }
+    
+    const sectionsToSwing = document.querySelectorAll('.section-wrap');
+    sectionsToSwing.forEach((sec) => {
+      gsap.fromTo(sec, 
+        { 
+          opacity: 0, 
+          scale: 0.94, 
+          y: 70,
+          filter: 'blur(10px)'
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          filter: 'blur(0px)',
+          duration: 1.15,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: sec,
+            start: 'top 82%',
+            toggleActions: 'play none none none',
+            onEnter: () => {
+              triggerWebSwingSwipe();
+              soundEngine.playSpiderSense();
+            }
+          }
+        }
+      );
+      
+      const staggerEl = sec.querySelectorAll('.about-panels-grid > div, .timeline-entry-row, .project-card-container, .skills-svg-web, .postcard-container');
+      if (staggerEl.length > 0) {
+        gsap.fromTo(staggerEl,
+          { opacity: 0, y: 40, scale: 0.96 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.9,
+            ease: 'back.out(1.15)',
+            stagger: 0.12,
+            scrollTrigger: {
+              trigger: sec,
+              start: 'top 75%',
+              toggleActions: 'play none none none'
+            }
+          }
+        );
+      }
+    });
 
     /* ==========================================================================
        I. INTERSECTIONOBSERVERS (SCROLL LINKED IN-VIEW TRIGGERS)
@@ -4263,7 +4997,7 @@
       navLogo.classList.remove('logo-waving');
     });
 
-    /* Real-Time mouse tilting effect on cards (3D Transform physics) */
+    /* Real-Time mouse tilting effect on cards (3D Transform physics + Parallax Icons) */
     const cards = document.querySelectorAll('.project-card-container');
     cards.forEach(card => {
       card.addEventListener('mouseenter', () => {
@@ -4284,18 +5018,337 @@
         const midX = rect.width / 2;
         const midY = rect.height / 2;
 
-        // Angle rotation factors
-        const rotY = ((x - midX) / midX) * 15; // Rotates Y up to 15deg
-        const rotX = -((y - midY) / midY) * 15; // Rotates X up to 15deg
+        const rotY = ((x - midX) / midX) * 15;
+        const rotX = -((y - midY) / midY) * 15;
 
         const inner = card.querySelector('.project-card-inner');
         inner.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.04)`;
+        
+        // Icon parallax shift inside the card thumbnail box
+        const iconSvg = card.querySelector('.project-thumbnail-box svg');
+        if (iconSvg) {
+          const shiftX = ((x - midX) / midX) * 12;
+          const shiftY = ((y - midY) / midY) * 12;
+          iconSvg.style.transform = `translate3d(${shiftX}px, ${shiftY}px, 20px)`;
+          iconSvg.style.transition = 'transform 0.1s ease';
+        }
       });
 
       card.addEventListener('mouseleave', () => {
         const inner = card.querySelector('.project-card-inner');
         inner.style.transform = 'rotateX(8deg) rotateY(0deg) scale(1)';
+        
+        const iconSvg = card.querySelector('.project-thumbnail-box svg');
+        if (iconSvg) {
+          iconSvg.style.transform = 'translate3d(0, 0, 0)';
+        }
       });
+    });
+
+    /* ==========================================================================
+       EXTRA: 15 ADVANCED DYNAMIC SPIDER-HUD JS ANIMATIONS ENGINE
+       ========================================================================== */
+
+    // Helper: Split header titles into flickering characters
+    document.querySelectorAll('.comic-header-title').forEach(header => {
+      const text = header.textContent;
+      header.textContent = '';
+      [...text].forEach(char => {
+        const span = document.createElement('span');
+        span.textContent = char === ' ' ? '\u00A0' : char;
+        if (Math.random() < 0.25 && char !== ' ') {
+          span.className = 'flicker-char';
+        }
+        header.appendChild(span);
+      });
+    });
+
+    // 1. Blinking HUD Crosshair Reticle Cursor Tracker
+    const reticle = document.createElement('div');
+    reticle.setAttribute('id', 'hud-reticle-cursor');
+    
+    const hLine = document.createElement('div');
+    hLine.className = 'hud-reticle-crosshair';
+    const vLine = document.createElement('div');
+    vLine.className = 'hud-reticle-crosshair-v';
+    const reticleText = document.createElement('div');
+    reticleText.className = 'hud-reticle-text';
+    reticleText.textContent = 'COORD: SECURE // LEVEL-4';
+    
+    reticle.appendChild(hLine);
+    reticle.appendChild(vLine);
+    reticle.appendChild(reticleText);
+    document.body.appendChild(reticle);
+    
+    let reticleX = 0, reticleY = 0;
+    let targetReticleX = 0, targetReticleY = 0;
+    
+    window.addEventListener('mousemove', (e) => {
+      targetReticleX = e.clientX;
+      targetReticleY = e.clientY;
+      reticle.style.opacity = '1';
+      
+      reticleText.textContent = `COORD // X: ${Math.round(e.clientX)} Y: ${Math.round(e.clientY)}`;
+      
+      if (lastMouseX !== null && lastMouseMoveTime !== null) {
+        const dx = e.clientX - lastMouseX;
+        const dy = e.clientY - lastMouseY;
+        const dist = Math.hypot(dx, dy);
+        const dt = Date.now() - lastMouseMoveTime;
+        const speed = dist / dt;
+        
+        if (speed > 5.5 && Math.random() < 0.15) {
+          createRadarSonarRipple(e.clientX, e.clientY);
+        }
+      }
+    });
+    
+    function updateReticlePos() {
+      reticleX += (targetReticleX - reticleX) * 0.12;
+      reticleY += (targetReticleY - reticleY) * 0.12;
+      
+      reticle.style.left = `${reticleX}px`;
+      reticle.style.top = `${reticleY}px`;
+      
+      requestAnimationFrame(updateReticlePos);
+    }
+    updateReticlePos();
+    
+    window.addEventListener('mouseleave', () => {
+      reticle.style.opacity = '0';
+    });
+
+    // 2. Scrolling Digital Scanning Laser Line Overlay
+    const laserScanner = document.createElement('div');
+    laserScanner.setAttribute('id', 'hud-laser-scanner');
+    document.body.appendChild(laserScanner);
+
+    // 3. Spider-Sense Sonar Radar Ripple Generator
+    function createRadarSonarRipple(x, y) {
+      const sonar = document.createElement('div');
+      sonar.className = 'radar-sonar-wave';
+      sonar.style.left = `${x}px`;
+      sonar.style.top = `${y}px`;
+      document.body.appendChild(sonar);
+      setTimeout(() => sonar.remove(), 800);
+    }
+
+    // 4. Matrix Character Morphing Glitch on Card Titles
+    function scrambleText(element) {
+      const originalText = element.getAttribute('data-original') || element.textContent;
+      if (!element.getAttribute('data-original')) {
+        element.setAttribute('data-original', originalText);
+      }
+      const chars = 'XYZ$%#@!01&<>*[]+=';
+      let iterations = 0;
+      const interval = setInterval(() => {
+        element.textContent = originalText
+          .split('')
+          .map((char, index) => {
+            if (index < iterations) {
+              return originalText[index];
+            }
+            return chars[Math.floor(Math.random() * chars.length)];
+          })
+          .join('');
+        
+        if (iterations >= originalText.length) {
+          clearInterval(interval);
+          element.textContent = originalText;
+        }
+        iterations += 1/3;
+      }, 25);
+    }
+
+    document.querySelectorAll('.project-card-container').forEach(card => {
+      const title = card.querySelector('.project-card-title');
+      if (title) {
+        card.addEventListener('mouseenter', () => scrambleText(title));
+      }
+    });
+
+    // 5. Interactive Magnetic Buttons physics
+    const magneticItems = document.querySelectorAll('.sound-toggle-btn, #hamburger-btn');
+    window.addEventListener('mousemove', (e) => {
+      magneticItems.forEach(btn => {
+        const rect = btn.getBoundingClientRect();
+        const bx = rect.left + rect.width / 2;
+        const by = rect.top + rect.height / 2;
+        const dist = Math.hypot(e.clientX - bx, e.clientY - by);
+        
+        if (dist < 55) {
+          const dx = e.clientX - bx;
+          const dy = e.clientY - by;
+          gsap.to(btn, { x: dx * 0.45, y: dy * 0.45, scale: 1.08, duration: 0.25 });
+        } else {
+          gsap.to(btn, { x: 0, y: 0, scale: 1.0, duration: 0.3 });
+        }
+      });
+    });
+
+    // 6. Sound Visualizer Waveform Bar creation
+    const soundContainer = document.querySelector('.navbar-right-options') || document.body;
+    const soundWaves = document.createElement('div');
+    soundWaves.className = 'sound-waves-visualizer';
+    for (let i = 0; i < 3; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'sv-bar';
+      soundWaves.appendChild(bar);
+    }
+    soundBtn.after(soundWaves);
+
+    soundBtn.addEventListener('click', () => {
+      if (soundEngine.enabled) {
+        soundWaves.classList.add('active');
+      } else {
+        soundWaves.classList.remove('active');
+      }
+    });
+
+    // 7. Virtual Neon Particle Sparks Spray on Card Hover
+    document.querySelectorAll('.project-card-container').forEach(card => {
+      card.addEventListener('mouseenter', (e) => {
+        const rect = card.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        
+        for (let i = 0; i < 15; i++) {
+          const spark = document.createElement('div');
+          spark.className = 'neon-spark-particle';
+          spark.style.left = `${cx}px`;
+          spark.style.top = `${cy}px`;
+          
+          const color = Math.random() < 0.5 ? 'var(--hud-neon-red)' : 'var(--hud-neon-blue)';
+          spark.style.backgroundColor = color;
+          spark.style.boxShadow = `0 0 6px ${color}`;
+          
+          const angle = Math.random() * Math.PI * 2;
+          const velocity = Math.random() * 90 + 40;
+          const dx = Math.cos(angle) * velocity;
+          const dy = Math.sin(angle) * velocity;
+          
+          spark.style.setProperty('--dx', `${dx}px`);
+          spark.style.setProperty('--dy', `${dy}px`);
+          
+          document.body.appendChild(spark);
+          setTimeout(() => spark.remove(), 600);
+        }
+      });
+    });
+
+    // 8. Spider-Verse Concentric Opening Portal Outlines
+    function triggerPortalOctagons() {
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          const ring = document.createElement('div');
+          ring.className = 'portal-octagon-ring portal-octagon-active';
+          document.body.appendChild(ring);
+          setTimeout(() => ring.remove(), 1000);
+        }, i * 150);
+      }
+    }
+    
+    sectionsToSwing.forEach(sec => {
+      ScrollTrigger.create({
+        trigger: sec,
+        start: 'top 82%',
+        onEnter: triggerPortalOctagons
+      });
+    });
+
+    // 9. Interactive Web-Sling Scroll-to-Top Button
+    const scrollTopBtn = document.createElement('div');
+    scrollTopBtn.setAttribute('id', 'spidey-scroll-top-btn');
+    scrollTopBtn.innerHTML = `
+      <svg viewBox="0 0 24 24">
+        <path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z"/>
+      </svg>
+    `;
+    document.body.appendChild(scrollTopBtn);
+    
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 350) {
+        scrollTopBtn.classList.add('active');
+      } else {
+        scrollTopBtn.classList.remove('active');
+      }
+    });
+    
+    scrollTopBtn.addEventListener('click', () => {
+      soundEngine.playThwip();
+      soundEngine.playWhoosh();
+      
+      activeWebThwips.push({
+        startX: window.innerWidth - 60,
+        startY: window.innerHeight - 60,
+        targetX: window.innerWidth - 60,
+        targetY: 0,
+        startTime: Date.now(),
+        duration: 500,
+        amplitude: 50,
+        frequency: 0.1
+      });
+      
+      lenis.scrollTo(0, { duration: 1.5 });
+    });
+
+    // 10. CLI Console Terminal typing emulator in Contact section
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      const cliContainer = document.createElement('div');
+      cliContainer.className = 'cli-hud-terminal-container';
+      
+      const cliLine1 = document.createElement('div');
+      cliLine1.className = 'cli-prompt-line';
+      cliLine1.textContent = 'initializing signal beacons...';
+      cliContainer.appendChild(cliLine1);
+      
+      const cliLine2 = document.createElement('div');
+      cliLine2.className = 'cli-log-line';
+      cliLine2.style.marginTop = '0.5rem';
+      cliContainer.appendChild(cliLine2);
+      
+      contactSection.querySelector('.postcard-container')?.after(cliContainer);
+      
+      const cliLogs = [
+        "ESTABLISHING PROTOCOLS DIRECT TO EARTH-616...",
+        "ENCRYPTION KEY APPLIED: MYSURU-SPIDEY-NET // SECURE",
+        "PORTAL TELEMETRY SCANNING COORDS... SUCCESS",
+        "BEACON SIGNAL DIRECTED TO: rohitumys11@gmail.com",
+        "HERO COCOON PROTOCOL INITIALIZED... ✓"
+      ];
+      let logIdx = 0;
+      
+      function typeTerminalLogs() {
+        if (logIdx < cliLogs.length) {
+          cliLine2.innerHTML += `<div class="cli-log-secure">> ${cliLogs[logIdx]}</div>`;
+          logIdx++;
+          setTimeout(typeTerminalLogs, 2500);
+        }
+      }
+      
+      ScrollTrigger.create({
+        trigger: contactSection,
+        start: 'top 80%',
+        onEnter: () => setTimeout(typeTerminalLogs, 1500)
+      });
+    }
+
+    // 11. Staggered 3D Flip comic-panels
+    document.querySelectorAll('.about-panel').forEach((panel, i) => {
+      panel.classList.add('about-panel-card');
+      panel.style.transformOrigin = 'left center';
+      panel.style.animationDelay = `${i * 0.15}s`;
+    });
+
+    // 12. Navbar indicator spider twitch on rapid scrolling
+    let legTwitchInterval;
+    window.addEventListener('scroll', () => {
+      spiderIndicator.style.animation = 'spider-scurry 0.08s linear infinite';
+      clearTimeout(legTwitchInterval);
+      legTwitchInterval = setTimeout(() => {
+        spiderIndicator.style.animation = '';
+      }, 200);
     });
   </script>
 </body>
