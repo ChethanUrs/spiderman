@@ -1,0 +1,4302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rohit U | Spider-Dev Interactive Experience</title>
+  <meta name="description" content="Immersive Spider-Man inspired interactive portfolio for Rohit U, a full-stack developer & UI designer studying Integrated MCA at Amrita Vishwa Vidyapeetham.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito+Sans:ital,wght@0,300;0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       1. CORE DESIGN SYSTEM & VARIABLES
+       ========================================================================== */
+    :root {
+      --spider-red:     #E23636;
+      --spider-blue:    #003153;
+      --spider-dark:    #060610;
+      --spider-black:   #0a0a0f;
+      --spider-white:   #F5F5F5;
+      --spider-glow-r:  rgba(226, 54, 54, 0.6);
+      --spider-glow-b:  rgba(0, 49, 83, 0.6);
+      --spider-silk:    rgba(255, 255, 255, 0.08);
+      --bangers-font:   'Bangers', cursive;
+      --sans-font:      'Nunito Sans', sans-serif;
+      --transition-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--spider-dark);
+      color: var(--spider-white);
+      font-family: var(--sans-font);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--spider-black);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--spider-red);
+      border-radius: 4px;
+      border: 2px solid var(--spider-black);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ff5252;
+    }
+
+    /* Canvas Overlays */
+    #cursor-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .halftone-bg {
+      background-image: radial-gradient(rgba(226, 54, 54, 0.06) 15%, transparent 16%);
+      background-size: 10px 10px;
+    }
+
+    /* Vignette Breathing */
+    .vignette-pulsing {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, transparent 20%, var(--spider-black) 100%);
+      pointer-events: none;
+      z-index: 1;
+      animation: vignette-pulse 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes vignette-pulse {
+      0% { opacity: 0.4; }
+      100% { opacity: 0.8; }
+    }
+
+    /* ==========================================================================
+       2. LOADING SCREEN (SPIDEY-VERSE PORTAL INTRO)
+       ========================================================================== */
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #030308;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.75s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.75s cubic-bezier(0.77, 0, 0.175, 1);
+      overflow: hidden;
+      background-image: 
+        radial-gradient(rgba(226, 54, 54, 0.08) 15%, transparent 16%),
+        radial-gradient(circle, transparent 20%, #010103 100%);
+      background-size: 12px 12px, 100% 100%;
+    }
+
+    /* Dimensional Portal Ring */
+    .portal-outer-ring {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+      border: 3px double rgba(226, 54, 54, 0.2);
+      box-shadow: 
+        0 0 30px var(--spider-glow-r),
+        0 0 60px rgba(0, 49, 83, 0.4),
+        inset 0 0 30px rgba(226, 54, 54, 0.3);
+      animation: pulse-glow-portal 2s infinite alternate;
+    }
+    @keyframes pulse-glow-portal {
+      0% { box-shadow: 0 0 25px var(--spider-glow-r), inset 0 0 20px rgba(226, 54, 54, 0.3); }
+      100% { box-shadow: 0 0 50px rgba(0, 49, 83, 0.8), inset 0 0 40px rgba(255, 214, 0, 0.4); }
+    }
+
+    .portal-spinning-webs {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0; left: 0;
+      stroke: var(--spider-red);
+      stroke-width: 1;
+      fill: none;
+      opacity: 0.75;
+      animation: rotate-portal-webs 12s linear infinite;
+      filter: drop-shadow(0 0 4px var(--spider-red));
+    }
+    @keyframes rotate-portal-webs {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Glitch Spider Silhouette */
+    .loader-spider-container {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .glitch-spider-logo {
+      width: 85px;
+      height: 85px;
+      fill: var(--spider-red);
+      filter: drop-shadow(0 0 8px var(--spider-red));
+      transform-origin: center;
+      animation: spidey-logo-vibrate 0.15s infinite alternate;
+    }
+    @keyframes spidey-logo-vibrate {
+      0% { transform: translate(1px, 0.5px) scale(0.98); }
+      50% { transform: translate(-1.5px, -0.5px) skewX(1deg); }
+      100% { transform: translate(0.5px, 1.5px) scale(1.02); }
+    }
+
+    /* Double offset cyan/magenta glitch layer shadows */
+    .glitch-spider-logo::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: inherit;
+      mix-blend-mode: screen;
+      opacity: 0.75;
+    }
+
+    /* Neon Spun Loading Line */
+    .loader-spin-track {
+      width: 320px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      overflow: visible;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .loader-spin-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--spider-blue), var(--spider-red), #ffd600);
+      box-shadow: 0 0 12px var(--spider-red);
+      position: relative;
+      border-radius: 3px;
+    }
+
+    .loader-spin-crawler {
+      position: absolute;
+      right: -8px;
+      top: -8px;
+      width: 22px;
+      height: 22px;
+      fill: var(--spider-white);
+      transform: rotate(-90deg);
+      filter: drop-shadow(0 0 5px var(--spider-red));
+      animation: leg-crawl-fast 0.15s linear infinite;
+    }
+    @keyframes leg-crawl-fast {
+      0% { transform: rotate(-90deg) scaleY(0.9); }
+      50% { transform: rotate(-90deg) scaleY(1.1); }
+      100% { transform: rotate(-90deg) scaleY(0.9); }
+    }
+
+    /* Status Text */
+    .loader-status-container {
+      margin-top: 1.5rem;
+      text-align: center;
+      min-height: 25px;
+    }
+
+    .loader-status-text {
+      font-family: var(--bangers-font);
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      color: var(--spider-white);
+      text-shadow: 2px 2px 0px var(--spider-blue);
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+
+    #loader.shattered {
+      transform: scale(1.22);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       3. GLOBAL WEB SYSTEM
+       ========================================================================== */
+    #global-web-backdrop {
+      position: fixed;
+      top: -20%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.03;
+      stroke: var(--spider-white);
+      stroke-width: 0.5;
+      fill: none;
+      animation: slow-rotate-web 120s linear infinite;
+    }
+
+    @keyframes slow-rotate-web {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .corner-web {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+      stroke: var(--spider-white);
+      stroke-width: 1;
+      fill: none;
+      transition: transform 1.2s var(--transition-spring), opacity 1.2s;
+      transform: scale(0.6);
+    }
+
+    .corner-web-tl { top: 0; left: 0; }
+    .corner-web-br { bottom: 0; right: 0; transform: rotate(180deg) scale(0.6); }
+
+    .in-view .corner-web-tl { transform: scale(1); }
+    .in-view .corner-web-br { transform: rotate(180deg) scale(1); }
+
+    .section-divider-wrap {
+      width: 100%;
+      height: 40px;
+      position: relative;
+      overflow: visible;
+      z-index: 3;
+      margin: 4rem 0;
+    }
+
+    .divider-thread {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--spider-silk) 10%, var(--spider-silk) 90%, transparent);
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .divider-spider {
+      position: absolute;
+      top: 50%;
+      left: -50px;
+      transform: translate(-50%, -50%) rotate(90deg);
+      width: 24px;
+      height: 24px;
+      fill: var(--spider-red);
+      opacity: 0;
+      filter: drop-shadow(0 0 4px var(--spider-red));
+    }
+
+    .divider-spider.traverse {
+      animation: traverse-silk 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes traverse-silk {
+      0% { left: 0%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { left: 100%; opacity: 0; }
+    }
+
+    /* Comic Bubbles on click */
+    .comic-click-bubble {
+      position: fixed;
+      font-family: var(--bangers-font);
+      font-size: 2.2rem;
+      color: #000;
+      background: #fff;
+      border: 3px solid #000;
+      padding: 0.3rem 1.2rem;
+      border-radius: 4px;
+      box-shadow: 4px 4px 0px var(--spider-red);
+      transform: translate(-50%, -50%) rotate(-5deg);
+      z-index: 9998;
+      pointer-events: none;
+      text-transform: uppercase;
+      animation: comic-burst 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes comic-burst {
+      0% { transform: translate(-50%, -50%) scale(0.1) rotate(-20deg); opacity: 1; }
+      50% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); }
+      100% { transform: translate(-50%, -50%) scale(1) rotate(-8deg); opacity: 0; margin-top: -30px; }
+    }
+
+    /* ==========================================================================
+       4. NAVBAR (LIVING WEB BAR)
+       ========================================================================== */
+    #navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 75px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4rem;
+      background-color: transparent;
+      transition: background-color 0.4s, backdrop-filter 0.4s, border-bottom 0.4s;
+      border-bottom: 1px solid transparent;
+    }
+
+    #navbar.scrolled {
+      background-color: rgba(6, 6, 16, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(226, 54, 54, 0.3);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-logo-box {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .nav-logo-spider {
+      width: 42px;
+      height: 42px;
+      fill: var(--spider-red);
+      filter: drop-shadow(0 0 5px var(--spider-red));
+      transform-origin: center;
+    }
+
+    .logo-waving {
+      animation: spider-wave 0.5s ease-in-out infinite alternate !important;
+    }
+
+    @keyframes spider-wave {
+      0% { transform: rotate(-5deg) scale(1.05); }
+      100% { transform: rotate(5deg) scale(1.05); }
+    }
+
+    .nav-logo-text {
+      font-family: var(--bangers-font);
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      color: var(--spider-white);
+      text-shadow: 2px 2px 0px var(--spider-blue);
+    }
+
+    .nav-links-wrap {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+      position: relative;
+    }
+
+    .nav-link-item a {
+      text-decoration: none;
+      font-family: var(--sans-font);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding: 0.5rem 0;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .nav-link-item a:hover {
+      color: var(--spider-red);
+    }
+
+    .nav-link-item a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: var(--spider-red);
+      box-shadow: 0 0 5px var(--spider-red);
+      transition: width 0.35s var(--transition-spring);
+    }
+
+    .nav-link-item a:hover::after {
+      width: 100%;
+    }
+
+    #navbar-spider-indicator {
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 20px;
+      height: 20px;
+      fill: var(--spider-red);
+      pointer-events: none;
+      transition: left 0.45s var(--transition-spring), opacity 0.3s;
+      opacity: 0;
+      transform: translateX(-50%) rotate(180deg);
+      filter: drop-shadow(0 0 3px var(--spider-red));
+    }
+
+    .spider-crawling {
+      animation: spider-scurry 0.15s linear infinite;
+    }
+
+    @keyframes spider-scurry {
+      0% { transform: translateX(-50%) rotate(180deg) scaleX(0.9) scaleY(1.1); }
+      50% { transform: translateX(-50%) rotate(180deg) scaleX(1.1) scaleY(0.9); }
+      100% { transform: translateX(-50%) rotate(180deg) scaleX(0.9) scaleY(1.1); }
+    }
+
+    .sound-toggle-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--spider-white);
+      font-size: 1.1rem;
+      transition: all 0.3s;
+    }
+
+    .sound-toggle-btn:hover {
+      border-color: var(--spider-red);
+      color: var(--spider-red);
+      box-shadow: 0 0 8px var(--spider-glow-r);
+      transform: scale(1.1);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      position: relative;
+    }
+
+    .mobile-line {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background-color: var(--spider-white);
+      transition: transform 0.3s, top 0.3s, opacity 0.3s;
+    }
+
+    .mobile-line-1 { top: 6px; }
+    .mobile-line-2 { top: 14px; }
+    .mobile-line-3 { top: 22px; }
+
+    .mobile-menu-btn.open .mobile-line-1 {
+      transform: rotate(45deg);
+      top: 14px;
+      background-color: var(--spider-red);
+    }
+    .mobile-menu-btn.open .mobile-line-2 {
+      opacity: 0;
+    }
+    .mobile-menu-btn.open .mobile-line-3 {
+      transform: rotate(-45deg);
+      top: 14px;
+      background-color: var(--spider-red);
+    }
+
+    #mobile-nav-overlay {
+      position: fixed;
+      top: 75px;
+      left: 0;
+      width: 100%;
+      height: 0;
+      background-color: rgba(6, 6, 16, 0.95);
+      backdrop-filter: blur(25px);
+      z-index: 999;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      transition: height 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    #mobile-nav-overlay.open {
+      height: calc(100vh - 75px);
+      border-bottom: 2px solid var(--spider-red);
+    }
+
+    .mobile-link-item a {
+      text-decoration: none;
+      font-family: var(--bangers-font);
+      font-size: 2.2rem;
+      color: var(--spider-white);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: color 0.3s;
+    }
+
+    .mobile-link-item a:hover {
+      color: var(--spider-red);
+      text-shadow: 0 0 10px var(--spider-glow-r);
+    }
+
+    /* ==========================================================================
+       5. HERO SECTION — CINEMATIC OPENER
+       ========================================================================== */
+    #hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4rem;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .parallax-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .parallax-layer {
+      position: absolute;
+      bottom: 0;
+      left: -5%;
+      width: 110%;
+      height: 100%;
+      background-position: bottom center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+    }
+
+    .layer-sky {
+      background: radial-gradient(circle at center, #1b132e 0%, var(--spider-dark) 80%);
+      z-index: 1;
+    }
+
+    .layer-bg-city {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" fill="%23040409"><path d="M0 400 L0 300 L30 300 L30 250 L70 250 L70 320 L110 320 L110 200 L160 200 L160 340 L190 340 L190 280 L230 280 L230 400 Z"/><path d="M200 400 L200 240 L260 240 L260 180 L310 180 L310 290 L360 290 L360 220 L400 220 L400 400 Z"/><path d="M400 400 L400 320 L440 320 L440 200 L500 200 L500 150 L560 150 L560 300 L610 300 L610 400 Z"/><path d="M600 400 L600 270 L650 270 L650 210 L700 210 L700 130 L760 130 L760 330 L800 330 L800 400 Z"/><path d="M800 400 L800 280 L840 280 L840 190 L900 190 L900 310 L940 310 L940 220 L990 220 L990 400 Z"/><path d="M950 400 L950 310 L1010 310 L1010 250 L1060 250 L1060 180 L1110 180 L1110 330 L1160 330 L1160 400 Z"/></svg>');
+      background-size: 100% auto;
+      z-index: 2;
+      opacity: 0.45;
+    }
+
+    .layer-mid-city {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" fill="%23020205"><path d="M0 400 L0 340 L50 340 L50 280 L90 280 L90 310 L140 310 L140 160 L190 160 L190 350 L250 350 L250 400 Z"/><path d="M220 400 L220 310 L280 310 L280 230 L340 230 L340 120 L360 120 L360 280 L420 280 L420 400 Z"/><path d="M400 400 L400 330 L450 330 L450 220 L520 220 L520 180 L580 180 L580 340 L640 340 L640 400 Z"/><path d="M620 400 L620 290 L680 290 L680 250 L750 250 L750 140 L800 140 L800 310 L870 310 L870 400 Z"/><path d="M850 400 L850 320 L910 320 L910 200 L980 200 L980 340 L1040 340 L1040 400 Z"/></svg>');
+      background-size: 100% auto;
+      z-index: 3;
+      opacity: 0.75;
+    }
+
+    .layer-ledge {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 350" fill="%23010103"><path d="M0 350 L0 320 L150 300 L250 330 L400 290 L550 310 L700 270 L950 310 L1200 280 L1200 350 Z"/><rect x="420" y="270" width="80" height="25" fill="%23000000"/><rect x="850" y="290" width="50" height="25" fill="%23000000"/></svg>');
+      background-size: 100% auto;
+      z-index: 4;
+    }
+
+    #ambient-particles-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: auto;
+      z-index: 5;
+    }
+
+    .spidey-swing-node {
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      pointer-events: none;
+      z-index: 6;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+    }
+
+    .spidey-swing-active {
+      opacity: 1;
+      offset-path: path("M -120 100 Q 400 750 600 380 Q 750 150 1250 500");
+      animation: dynamic-swing 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes dynamic-swing {
+      0% { offset-distance: 0%; transform: translate(-50%, -50%) rotate(60deg) scale(1.3); }
+      40% { transform: translate(-50%, -50%) rotate(15deg) scale(1.1); }
+      75% { transform: translate(-50%, -50%) rotate(-45deg) scale(0.95); }
+      100% { offset-distance: 100%; transform: translate(-50%, -50%) rotate(-90deg) scale(0.4); opacity: 0; }
+    }
+
+    .ledge-spidey-landing {
+      position: absolute;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.8);
+      z-index: 6;
+      width: 120px;
+      height: 120px;
+      pointer-events: none;
+      opacity: 0;
+      transform-origin: bottom center;
+    }
+
+    .ledge-spidey-landing.landed {
+      animation: landing-sequence 1.8s ease forwards;
+    }
+
+    @keyframes landing-sequence {
+      0% { opacity: 1; transform: translateX(-50%) scaleY(0.4) scaleX(1.3); }
+      35% { transform: translateX(-50%) scaleY(0.4) scaleX(1.3); }
+      60% { transform: translateX(-50%) scaleY(1.05) scaleX(0.95); }
+      75% { transform: translateX(-50%) scaleY(0.98) scaleX(1.02); }
+      100% { opacity: 1; transform: translateX(-50%) scaleY(1) scaleX(1); }
+    }
+
+    .shockwave-ripple {
+      position: absolute;
+      left: 50%;
+      bottom: 15px;
+      transform: translate(-50%, 50%);
+      width: 10px;
+      height: 10px;
+      border: 3px solid var(--spider-red);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 5;
+      opacity: 0;
+    }
+
+    .shockwave-active {
+      animation: expanding-shockwave 1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    }
+
+    @keyframes expanding-shockwave {
+      0% { width: 10px; height: 10px; opacity: 1; filter: drop-shadow(0 0 5px var(--spider-red)); }
+      100% { width: 350px; height: 120px; opacity: 0; }
+    }
+
+    .hero-content {
+      position: relative;
+      text-align: center;
+      max-width: 900px;
+      z-index: 7;
+      pointer-events: none;
+    }
+
+    .headline-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .headline-letter {
+      display: inline-block;
+      font-family: var(--bangers-font);
+      font-size: 5.5rem;
+      color: var(--spider-white);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 4px 4px 0px var(--spider-blue), 8px 8px 0px rgba(0, 0, 0, 0.6);
+      opacity: 0;
+      transform: translateY(-250px);
+    }
+
+    .letter-spring-active {
+      animation: letter-drop-spring 0.6s var(--transition-spring) forwards;
+    }
+
+    @keyframes letter-drop-spring {
+      0% { transform: translateY(-250px); opacity: 0; }
+      60% { transform: translateY(15px); opacity: 1; }
+      80% { transform: translateY(-8px); }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    .anchor-thread-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 6;
+    }
+
+    .anchor-thread-path {
+      stroke: rgba(255, 255, 255, 0.4);
+      stroke-width: 1.5;
+      fill: none;
+      stroke-dasharray: 600;
+      stroke-dashoffset: 600;
+    }
+
+    .anchor-thread-active {
+      animation: draw-silk-line 0.8s ease-out forwards;
+    }
+
+    @keyframes draw-silk-line {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .hero-subheadline-box {
+      min-height: 45px;
+      margin-bottom: 2.5rem;
+    }
+
+    .subheadline-text {
+      font-size: 1.4rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.85);
+      border-right: 3px solid var(--spider-red);
+      padding-right: 5px;
+    }
+
+    .subheadline-cursor-pulse {
+      animation: cursor-blink 0.8s steps(2, start) infinite;
+    }
+
+    @keyframes cursor-blink {
+      to { border-color: transparent; }
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      pointer-events: auto;
+    }
+
+    .cta-btn {
+      position: relative;
+      background: transparent;
+      border: 3px solid var(--spider-white);
+      color: var(--spider-white);
+      font-family: var(--bangers-font);
+      font-size: 1.4rem;
+      padding: 0.8rem 2.4rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      overflow: visible;
+      transition: all 0.3s;
+      outline: none;
+      box-shadow: 5px 5px 0px var(--spider-blue);
+    }
+
+    .cta-btn-red {
+      border-color: var(--spider-red);
+      background-color: var(--spider-red);
+      box-shadow: 5px 5px 0px #020205;
+    }
+
+    .cta-btn:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8);
+    }
+
+    .cta-btn-red:hover {
+      background-color: #ff3e3e;
+      border-color: #ff3e3e;
+      box-shadow: 8px 8px 0px var(--spider-glow-r);
+    }
+
+    .cta-btn::before, .cta-btn::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 0 3px #fff;
+      transition: width 0.3s ease;
+      pointer-events: none;
+    }
+
+    .cta-btn::before {
+      top: 50%;
+      right: 100%;
+    }
+
+    .cta-btn::after {
+      top: 50%;
+      left: 100%;
+    }
+
+    .cta-btn:hover::before, .cta-btn:hover::after {
+      width: 40px;
+    }
+
+    /* ==========================================================================
+       6. ABOUT ME — THE ORIGIN STORY
+       ========================================================================== */
+    .section-wrap {
+      position: relative;
+      width: 100%;
+      padding: 6rem 4rem;
+      z-index: 2;
+    }
+
+    .comic-header-box {
+      display: inline-block;
+      background: var(--spider-red);
+      border: 4px solid #000;
+      transform: rotate(-3deg);
+      padding: 0.5rem 2.5rem;
+      margin-bottom: 4rem;
+      box-shadow: 6px 6px 0px #000;
+      position: relative;
+      z-index: 4;
+    }
+
+    .comic-header-title {
+      font-family: var(--bangers-font);
+      font-size: 3rem;
+      color: var(--spider-white);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 2px 2px 0px var(--spider-blue);
+    }
+
+    .about-panels-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.9fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .hex-portrait-container {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      aspect-ratio: 1/1.15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hex-border-svg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      filter: drop-shadow(0 0 10px var(--spider-glow-r));
+    }
+
+    .hex-border-path {
+      fill: none;
+      stroke: var(--spider-red);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      transition: stroke-dashoffset 2s ease-out;
+    }
+
+    .in-view .hex-border-path {
+      stroke-dashoffset: 0;
+    }
+
+    .hex-portrait-inner {
+      width: 82%;
+      height: 82%;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      background-color: var(--spider-black);
+      border: 3px solid var(--spider-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hex-portrait-placeholder {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, var(--spider-blue) 0%, var(--spider-dark) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hex-portrait-logo {
+      width: 55%;
+      height: 55%;
+      fill: rgba(255, 255, 255, 0.15);
+      animation: subtle-spin 20s linear infinite;
+    }
+
+    @keyframes subtle-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .vintage-halftone-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(var(--spider-red) 1px, transparent 1px);
+      background-size: 8px 8px;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .hex-glow-cycle {
+      animation: hex-glow-pulse 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes hex-glow-pulse {
+      0% { filter: drop-shadow(0 0 5px var(--spider-glow-r)); }
+      100% { filter: drop-shadow(0 0 15px var(--spider-glow-b)); }
+    }
+
+    .about-bio-panel {
+      background: rgba(255, 255, 255, 0.02);
+      border: 3px solid #000;
+      border-radius: 4px;
+      padding: 2.5rem;
+      box-shadow: 8px 8px 0px #000;
+      position: relative;
+      overflow: hidden;
+      min-height: 380px;
+    }
+
+    .about-bio-text {
+      font-size: 1.12rem;
+      line-height: 1.75;
+      color: rgba(255, 255, 255, 0.95);
+      letter-spacing: 0.5px;
+      margin-bottom: 2rem;
+    }
+
+    .signature-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1.5px solid var(--spider-silk);
+      padding-top: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .sig-text {
+      font-family: var(--bangers-font);
+      font-size: 1.8rem;
+      color: var(--spider-red);
+      letter-spacing: 1px;
+    }
+
+    .folio-stamp {
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 2px;
+      border: 1px dashed rgba(255, 255, 255, 0.25);
+      padding: 0.3rem 0.8rem;
+    }
+
+    .about-stats-panel {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .stat-comic-card {
+      background: var(--spider-black);
+      border: 3px solid #000;
+      border-radius: 4px;
+      padding: 1.5rem;
+      box-shadow: 5px 5px 0px var(--spider-blue);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .stat-comic-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 8px 8px 0px var(--spider-red);
+    }
+
+    .stat-card-badge {
+      font-size: 2.2rem;
+      color: var(--spider-red);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card-number {
+      font-family: var(--bangers-font);
+      font-size: 2.8rem;
+      color: var(--spider-white);
+      letter-spacing: 1px;
+      margin-bottom: 0.3rem;
+    }
+
+    .stat-card-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* ==========================================================================
+       7. EXPERIENCE — THE CHRONICLE (STORY TIMELINE)
+       ========================================================================== */
+    .experience-timeline-container {
+      position: relative;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 0;
+    }
+
+    .timeline-spine-svg {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .timeline-spine-line {
+      stroke: var(--spider-silk);
+      stroke-width: 3;
+      stroke-dasharray: 8 4;
+      fill: none;
+    }
+
+    .timeline-spine-progress {
+      stroke: var(--spider-red);
+      stroke-width: 4;
+      fill: none;
+      filter: drop-shadow(0 0 4px var(--spider-red));
+      transition: stroke-dashoffset 0.1s linear;
+    }
+
+    .timeline-entry-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      margin-bottom: 5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .timeline-entry-row:nth-child(even) .timeline-card-col {
+      grid-column: 2;
+    }
+
+    .timeline-entry-row:nth-child(odd) .timeline-card-col {
+      grid-column: 1;
+      text-align: right;
+    }
+
+    .timeline-card-col {
+      position: relative;
+      width: 100%;
+      perspective: 1000px;
+    }
+
+    .timeline-comic-panel {
+      background: var(--spider-black);
+      border: 3px solid #000;
+      border-radius: 4px;
+      box-shadow: 6px 6px 0px #000;
+      overflow: hidden;
+      display: inline-block;
+      text-align: left;
+      width: 100%;
+      opacity: 0;
+      transition: transform 0.8s var(--transition-spring), opacity 0.8s;
+    }
+
+    .timeline-entry-row:nth-child(odd) .timeline-comic-panel {
+      transform: rotate(-8deg) translateX(-100px);
+      transform-origin: top right;
+    }
+
+    .timeline-entry-row:nth-child(even) .timeline-comic-panel {
+      transform: rotate(8deg) translateX(100px);
+      transform-origin: top left;
+    }
+
+    .in-view .timeline-comic-panel {
+      transform: rotate(0deg) translateX(0) !important;
+      opacity: 1;
+    }
+
+    .timeline-card-header {
+      background: var(--spider-red);
+      border-bottom: 3px solid #000;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .timeline-card-title {
+      font-family: var(--bangers-font);
+      font-size: 1.6rem;
+      letter-spacing: 1px;
+      color: var(--spider-white);
+      text-shadow: 1px 1px 0 #000;
+    }
+
+    .timeline-card-badge {
+      background: #000;
+      color: var(--spider-white);
+      font-family: var(--bangers-font);
+      font-size: 0.95rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 2px;
+      letter-spacing: 1px;
+    }
+
+    .timeline-card-body {
+      padding: 2rem;
+      position: relative;
+    }
+
+    .timeline-company-info {
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--spider-white);
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-date-info {
+      font-size: 0.95rem;
+      color: var(--spider-red);
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: inline-block;
+      border-bottom: 1.5px solid var(--spider-silk);
+      padding-bottom: 4px;
+    }
+
+    .timeline-bullets-list {
+      list-style: none;
+    }
+
+    .timeline-bullet-item {
+      position: relative;
+      padding-left: 24px;
+      margin-bottom: 1rem;
+      font-size: 0.98rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .timeline-bullet-item::before {
+      content: '◈';
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--spider-red);
+      font-size: 1.1rem;
+    }
+
+    .timeline-spine-dot {
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 24px;
+      height: 24px;
+      background: var(--spider-black);
+      border: 3px solid var(--spider-silk);
+      border-radius: 50%;
+      z-index: 3;
+      transition: all 0.4s;
+    }
+
+    .timeline-spine-dot::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--spider-red);
+      transition: transform 0.4s var(--transition-spring);
+    }
+
+    .timeline-entry-row.in-view .timeline-spine-dot {
+      border-color: var(--spider-red);
+      box-shadow: 0 0 10px var(--spider-glow-r);
+    }
+
+    .timeline-entry-row.in-view .timeline-spine-dot::after {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* ==========================================================================
+       8. PROJECTS — THE WEB GALLERY
+       ========================================================================== */
+    .projects-hanging-letters {
+      display: flex;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-bottom: 4rem;
+    }
+
+    .hanging-sign-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform-origin: top center;
+      animation: hanging-sway 3s ease-in-out infinite alternate;
+    }
+
+    .projects-hanging-letters .hanging-sign-box:nth-child(even) {
+      animation-delay: -0.7s;
+    }
+
+    .hanging-thread {
+      width: 1px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 2px #fff;
+    }
+
+    .hanging-sign-letter {
+      background: var(--spider-black);
+      border: 3px solid #000;
+      color: var(--spider-red);
+      font-family: var(--bangers-font);
+      font-size: 3rem;
+      width: 55px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 3px 3px 0px #000;
+      text-shadow: 1px 1px 0px #fff;
+    }
+
+    @keyframes hanging-sway {
+      0% { transform: rotate(-5deg); }
+      100% { transform: rotate(5deg); }
+    }
+
+    .projects-3d-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 3rem;
+      perspective: 1200px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .project-card-container {
+      position: relative;
+      width: 100%;
+      height: 450px;
+      transform-style: preserve-3d;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(120px) rotateX(15deg) rotateY(10deg);
+      transition: opacity 0.8s, transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .in-view .project-card-container {
+      opacity: 1;
+      transform: translateY(0) rotateX(0deg) rotateY(0deg);
+    }
+
+    .project-card-inner {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--spider-black);
+      border: 3px solid #000;
+      border-radius: 4px;
+      box-shadow: 6px 6px 0px #000;
+      overflow: hidden;
+      transform-origin: center bottom;
+      transition: box-shadow 0.3s, border-color 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .project-card-container:hover .project-card-inner {
+      box-shadow: 10px 10px 0px var(--spider-red), 0 0 25px var(--spider-glow-r);
+      border-color: var(--spider-red);
+    }
+
+    .project-thumbnail-box {
+      width: 100%;
+      height: 48%;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle, var(--spider-blue) 0%, var(--spider-dark) 100%);
+      border-bottom: 3px solid #000;
+    }
+
+    .project-thumbnail-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.65;
+      transition: transform 0.5s ease, opacity 0.5s;
+    }
+
+    .project-card-container:hover .project-thumbnail-img {
+      transform: scale(1.12);
+      opacity: 0.95;
+    }
+
+    .project-spider-watermark {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 48px;
+      height: 48px;
+      fill: var(--spider-white);
+      opacity: 0.08;
+      pointer-events: none;
+      transition: opacity 0.4s;
+    }
+
+    .project-card-container:hover .project-spider-watermark {
+      opacity: 0.18;
+    }
+
+    .project-card-content {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      position: relative;
+    }
+
+    .project-card-title {
+      font-family: var(--bangers-font);
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      color: var(--spider-white);
+      margin-bottom: 0.5rem;
+      transition: color 0.3s;
+    }
+
+    .project-card-container:hover .project-card-title {
+      color: var(--spider-red);
+    }
+
+    .project-card-desc {
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 1.2rem;
+      flex-grow: 1;
+    }
+
+    .project-tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tech-tag-badge {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: transform 0.4s var(--transition-spring), opacity 0.4s;
+    }
+
+    .project-card-container:hover .tech-tag-badge {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .project-card-container:hover .tech-tag-badge:nth-child(1) { transition-delay: 0.05s; }
+    .project-card-container:hover .tech-tag-badge:nth-child(2) { transition-delay: 0.1s; }
+    .project-card-container:hover .tech-tag-badge:nth-child(3) { transition-delay: 0.15s; }
+
+    .project-card-inner::before, .project-card-inner::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      transition: all 0.45s ease;
+      opacity: 0;
+    }
+
+    .project-card-inner::before {
+      border-left: 2px solid var(--spider-red);
+      border-right: 2px solid var(--spider-red);
+      transform: scaleY(0);
+    }
+
+    .project-card-inner::after {
+      border-top: 2px solid var(--spider-red);
+      border-bottom: 2px solid var(--spider-red);
+      transform: scaleX(0);
+    }
+
+    .project-card-container:hover .project-card-inner::before {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+
+    .project-card-container:hover .project-card-inner::after {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+
+    .card-git-link {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      font-family: var(--bangers-font);
+      font-size: 1.1rem;
+      color: var(--spider-white);
+      text-decoration: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s var(--transition-spring);
+      z-index: 11;
+    }
+
+    .project-card-container:hover .card-git-link {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card-git-link:hover {
+      color: var(--spider-red);
+      text-shadow: 0 0 5px var(--spider-glow-r);
+    }
+
+    /* ==========================================================================
+       9. SKILLS — THE RADIAL WEB
+       ========================================================================== */
+    .skills-interactive-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 600px;
+    }
+
+    .skills-radial-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 450px;
+      height: 450px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 49, 83, 0.3) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .skills-svg-web {
+      position: relative;
+      width: 580px;
+      height: 580px;
+      z-index: 2;
+      overflow: visible;
+    }
+
+    .web-structural-threads {
+      stroke: var(--spider-silk);
+      stroke-width: 1.5;
+      fill: none;
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      transition: stroke-dashoffset 2.5s ease-out;
+    }
+
+    .in-view .web-structural-threads {
+      stroke-dashoffset: 0;
+    }
+
+    .web-connecting-path {
+      stroke: var(--spider-silk);
+      stroke-width: 2;
+      fill: none;
+      transition: stroke 0.3s, filter 0.3s;
+    }
+
+    .web-connecting-path.glow-active {
+      stroke: var(--spider-red);
+      filter: drop-shadow(0 0 5px var(--spider-red));
+    }
+
+    .skill-node-orb {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .skill-node-circle {
+      fill: var(--spider-black);
+      stroke: var(--spider-silk);
+      stroke-width: 2.5;
+      transition: all 0.35s var(--transition-spring);
+    }
+
+    .skill-node-orb:hover .skill-node-circle {
+      stroke: var(--spider-red);
+      fill: var(--spider-blue);
+      r: 28;
+      filter: drop-shadow(0 0 8px var(--spider-red));
+    }
+
+    .skill-node-pulse-ring {
+      fill: none;
+      stroke: var(--spider-red);
+      stroke-width: 1.5;
+      r: 20;
+      opacity: 0;
+      transform-origin: center;
+    }
+
+    .skill-node-orb:hover .skill-node-pulse-ring {
+      animation: orb-ring-expand 1.2s ease-out infinite;
+    }
+
+    @keyframes orb-ring-expand {
+      0% { r: 20; opacity: 1; }
+      100% { r: 52; opacity: 0; }
+    }
+
+    .skill-node-text {
+      font-family: var(--bangers-font);
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      fill: var(--spider-white);
+      text-anchor: middle;
+      pointer-events: none;
+      transition: transform 0.35s var(--transition-spring), fill 0.3s;
+    }
+
+    .skill-node-orb:hover .skill-node-text {
+      fill: var(--spider-white);
+      font-size: 12px;
+    }
+
+    .comic-bubble-tooltip {
+      position: absolute;
+      background: var(--spider-white);
+      border: 3.5px solid #000;
+      color: #000;
+      padding: 0.8rem 1.2rem;
+      border-radius: 4px;
+      box-shadow: 4px 4px 0px #000;
+      font-weight: 900;
+      font-size: 1rem;
+      text-transform: uppercase;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -100%) scale(0.6);
+      transform-origin: bottom center;
+      transition: opacity 0.3s, transform 0.3s var(--transition-spring);
+    }
+
+    .comic-bubble-tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 15px 10px 0;
+      border-style: solid;
+      border-color: #000 transparent;
+      display: block;
+      width: 0;
+    }
+
+    .comic-bubble-tooltip::before {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 10px 7px 0;
+      border-style: solid;
+      border-color: var(--spider-white) transparent;
+      display: block;
+      width: 0;
+      z-index: 1;
+    }
+
+    .comic-bubble-tooltip.active {
+      opacity: 1;
+      transform: translate(-50%, -105%) scale(1);
+    }
+
+    /* ==========================================================================
+       10. CONTACT — THE SIGNAL (POSTCARD THEME)
+       ========================================================================== */
+    .contact-card-box {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #0d0d17;
+      border: 4px solid #000;
+      border-radius: 4px;
+      padding: 3rem;
+      box-shadow: 12px 12px 0px #000;
+      position: relative;
+      overflow: visible;
+      z-index: 3;
+    }
+
+    .postcard-split {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 3.5rem;
+    }
+
+    .postcard-divider {
+      width: 2px;
+      background: linear-gradient(rgba(0,0,0,0), rgba(255,255,255,0.1), rgba(0,0,0,0));
+      height: 100%;
+      position: absolute;
+      left: 55%;
+      top: 0;
+    }
+
+    .stamp-container {
+      border: 2px dashed var(--spider-red);
+      background: rgba(226, 54, 54, 0.05);
+      width: 110px;
+      height: 130px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-left: auto;
+      margin-bottom: 2rem;
+      transform: rotate(5deg);
+      box-shadow: 4px 4px 0px #000;
+      transition: all 0.3s;
+    }
+
+    .stamp-container:hover {
+      transform: rotate(0deg) scale(1.05);
+      border-color: #fff;
+    }
+
+    .stamp-price {
+      font-family: var(--bangers-font);
+      font-size: 1.3rem;
+      color: var(--spider-red);
+    }
+
+    .stamp-spider {
+      width: 48px;
+      height: 48px;
+      fill: var(--spider-red);
+      margin: 0.3rem 0;
+      filter: drop-shadow(0 0 2px var(--spider-red));
+    }
+
+    .stamp-city {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 1px;
+    }
+
+    .address-box {
+      border-left: 3px double rgba(255,255,255,0.15);
+      padding-left: 2rem;
+      margin-top: 1rem;
+    }
+
+    .address-line {
+      font-family: monospace;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 0.8rem;
+    }
+
+    .address-line strong {
+      color: var(--spider-red);
+      font-family: var(--bangers-font);
+      font-size: 1.15rem;
+      letter-spacing: 1px;
+    }
+
+    .input-field-group {
+      position: relative;
+      margin-bottom: 2.5rem;
+    }
+
+    .form-input-ctrl {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+      padding: 0.8rem 0;
+      color: var(--spider-white);
+      font-size: 1.05rem;
+      outline: none;
+      transition: border-bottom-color 0.3s;
+    }
+
+    .input-border-thread {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: var(--spider-red);
+      box-shadow: 0 0 5px var(--spider-red);
+      transition: width 0.45s ease;
+    }
+
+    .form-input-ctrl:focus ~ .input-border-thread {
+      width: 100%;
+    }
+
+    .floating-field-label {
+      position: absolute;
+      top: 0.8rem;
+      left: 0;
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.4);
+      pointer-events: none;
+      transition: all 0.3s var(--transition-spring);
+    }
+
+    .form-input-ctrl:focus ~ .floating-field-label,
+    .form-input-ctrl:not(:placeholder-shown) ~ .floating-field-label {
+      top: -1.2rem;
+      left: 0;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--spider-red);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .submit-wrap-box {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      overflow: visible;
+    }
+
+    .cocoon-btn {
+      position: relative;
+      background: var(--spider-red);
+      color: var(--spider-white);
+      border: 3px solid #000;
+      border-radius: 4px;
+      font-family: var(--bangers-font);
+      font-size: 1.5rem;
+      padding: 0.8rem 3rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      box-shadow: 5px 5px 0px #000;
+      outline: none;
+      transition: all 0.3s var(--transition-spring);
+    }
+
+    .cocoon-btn:hover {
+      background-color: #ff3e3e;
+      box-shadow: 7px 7px 0px var(--spider-glow-b);
+      transform: translate(-2px, -2px);
+    }
+
+    .cocoon-btn.spinning {
+      transform: scale(0.85);
+      background-color: #333;
+      border-color: #666;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      color: transparent;
+      pointer-events: none;
+    }
+
+    .cocoon-svg-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+      display: none;
+    }
+
+    .cocoon-svg-lines.active {
+      display: block;
+    }
+
+    .cocoon-silk-path {
+      stroke: rgba(255, 255, 255, 0.85);
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 400;
+      stroke-dashoffset: 400;
+      animation: wind-silk 0.8s linear forwards;
+    }
+
+    @keyframes wind-silk {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .success-spider-drop {
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 140px;
+      pointer-events: none;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+    }
+
+    .success-spider-drop.triggered {
+      animation: drop-and-spin 2.8s ease forwards;
+    }
+
+    @keyframes drop-and-spin {
+      0% { top: -200px; opacity: 1; transform: translateX(-50%) rotate(0deg); }
+      35% { top: -40px; opacity: 1; transform: translateX(-50%) rotate(720deg); }
+      60% { top: -40px; opacity: 1; transform: translateX(-50%) rotate(720deg) scale(1); }
+      80% { top: -40px; opacity: 1; transform: translateX(-50%) rotate(720deg) scale(0.1); }
+      100% { top: -200px; opacity: 0; transform: translateX(-50%) rotate(1080deg) scale(0); }
+    }
+
+    .success-silk-line {
+      width: 1.5px;
+      height: 100px;
+      background: #fff;
+    }
+
+    .success-spider-body {
+      width: 32px;
+      height: 32px;
+      fill: var(--spider-red);
+      filter: drop-shadow(0 0 5px var(--spider-red));
+    }
+
+    /* Advanced plucking social threads */
+    .social-links-container {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-top: 4rem;
+      list-style: none;
+    }
+
+    .social-thread-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .social-string-svg {
+      width: 30px;
+      height: 60px;
+      overflow: visible;
+    }
+
+    .social-string-path {
+      stroke: rgba(255,255,255,0.2);
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    .social-orb-button {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--spider-black);
+      border: 2px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 3px 3px 0 #000;
+      color: var(--spider-white);
+      font-size: 1.1rem;
+      transition: all 0.3s;
+      margin-top: -5px;
+    }
+
+    .social-thread-column:hover .social-orb-button {
+      border-color: var(--spider-red);
+      color: var(--spider-red);
+      box-shadow: 0 0 10px var(--spider-glow-r);
+      transform: scale(1.1);
+    }
+
+    /* ==========================================================================
+       11. EASTER EGGS & HIDDEN ELEMENTS
+       ========================================================================== */
+    .glitch-active {
+      animation: full-screen-shake 0.3s linear infinite;
+    }
+
+    @keyframes full-screen-shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -2px) rotate(-1deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      30% { transform: translate(0px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 2px) rotate(-1deg); }
+      60% { transform: translate(-3px, 1px) rotate(0deg); }
+      75% { transform: translate(2px, 1px) rotate(-1deg); filter: hue-rotate(90deg); }
+      90% { transform: translate(-1px, -1px) rotate(1deg); filter: invert(1); }
+      100% { transform: translate(1px, -2px) rotate(0deg); }
+    }
+
+    .glitch-text-mode * {
+      text-shadow: 3px 0 0 var(--spider-red), -3px 0 0 var(--spider-blue) !important;
+    }
+
+    #glitch-halftone-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 99999;
+      background: repeating-linear-gradient(rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(226, 54, 54, 0.15) 3px, rgba(226, 54, 54, 0.15) 4px);
+      display: none;
+    }
+
+    #glitch-halftone-overlay.active {
+      display: block;
+    }
+
+    #triple-click-swinger {
+      position: fixed;
+      width: 160px;
+      height: 160px;
+      pointer-events: none;
+      z-index: 99997;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+    }
+
+    .swinger-moving {
+      opacity: 1;
+      offset-path: path("M -150 200 C 300 800, 600 -100, 1400 400");
+      animation: swing-cross-screen 2.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    }
+
+    @keyframes swing-cross-screen {
+      0% { offset-distance: 0%; transform: translate(-50%, -50%) rotate(40deg); }
+      100% { offset-distance: 100%; transform: translate(-50%, -50%) rotate(-40deg); opacity: 0; }
+    }
+
+    #idle-rappeller-node {
+      position: fixed;
+      top: -200px;
+      left: 75%;
+      width: 60px;
+      height: 250px;
+      pointer-events: none;
+      z-index: 99996;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: top 1.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .rappeller-thread {
+      width: 1px;
+      height: 180px;
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .rappeller-spider {
+      width: 48px;
+      height: 48px;
+      fill: var(--spider-red);
+      filter: drop-shadow(0 0 6px var(--spider-red));
+      transform-origin: center;
+      animation: spin-around-idle 4s linear infinite;
+    }
+
+    @keyframes spin-around-idle {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(180deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ==========================================================================
+       12. FOOTER & DETAILS
+       ========================================================================== */
+    #footer {
+      width: 100%;
+      text-align: center;
+      padding: 3rem 0;
+      border-top: 1px solid var(--spider-silk);
+      position: relative;
+      z-index: 2;
+    }
+
+    .footer-text {
+      font-size: 0.9rem;
+      letter-spacing: 1.5px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-delay: 0s !important;
+        animation-duration: 0s !important;
+        transition-duration: 0s !important;
+      }
+      .parallax-layer {
+        transform: none !important;
+      }
+      #loader {
+        clip-path: none !important;
+        transition: opacity 0.5s !important;
+      }
+      #loader.shattered {
+        opacity: 0 !important;
+      }
+    }
+
+    /* ==========================================================================
+       13. RESPONSIVE MEDIA BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 1024px) {
+      .headline-letter {
+        font-size: 4.2rem;
+      }
+      .about-panels-grid {
+        grid-template-columns: 1fr;
+        justify-items: center;
+      }
+      .hex-portrait-container {
+        max-width: 320px;
+      }
+      .timeline-entry-row {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+      .timeline-entry-row:nth-child(even) .timeline-card-col,
+      .timeline-entry-row:nth-child(odd) .timeline-card-col {
+        grid-column: 1;
+        text-align: left;
+      }
+      .timeline-spine-svg, .timeline-spine-dot {
+        left: 20px;
+      }
+      .timeline-card-col {
+        padding-left: 50px;
+      }
+      .timeline-spine-svg {
+        transform: none;
+      }
+      .timeline-comic-panel {
+        transform: none !important;
+      }
+      #navbar {
+        padding: 0 2rem;
+      }
+      .postcard-split {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .postcard-divider {
+        display: none;
+      }
+      .address-box {
+        border-left: none;
+        border-top: 3px double rgba(255,255,255,0.15);
+        padding-left: 0;
+        padding-top: 2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .headline-letter {
+        font-size: 3rem;
+      }
+      .subheadline-text {
+        font-size: 1.1rem;
+      }
+      .hero-ctas {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+      }
+      .cta-btn {
+        width: 100%;
+        max-width: 280px;
+      }
+      .nav-links-wrap {
+        display: none;
+      }
+      .mobile-menu-btn {
+        display: block;
+      }
+      .skills-svg-web {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+        max-width: 480px;
+      }
+      .skills-radial-glow {
+        width: 300px;
+        height: 300px;
+      }
+      .contact-card-box {
+        padding: 2rem;
+      }
+      .section-wrap {
+        padding: 4rem 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .headline-letter {
+        font-size: 2.2rem;
+      }
+      .comic-header-title {
+        font-size: 2rem;
+      }
+      .hanging-sign-letter {
+        width: 40px;
+        height: 45px;
+        font-size: 2rem;
+      }
+      .hanging-thread {
+      /* ==========================================================================
+       SPIDER-VERSE EXTENSIONS (HIGH-FIDELITY WOW ANIMATIONS)
+       ========================================================================== */
+    /* Viewport Spider-Sense Tingle Alert */
+    #spidey-sense-border {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border: 15px solid transparent;
+      pointer-events: none;
+      z-index: 9997;
+      opacity: 0;
+      transition: opacity 0.25s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    .spidey-sense-active #spidey-sense-border {
+      opacity: 1;
+      animation: spidey-sense-flash 0.3s infinite alternate, screen-shake 0.15s infinite alternate;
+      border-image: radial-gradient(circle, var(--spider-red) 20%, #ffd600 80%) 20;
+    }
+    @keyframes spidey-sense-flash {
+      0% { opacity: 0.3; box-shadow: inset 0 0 15px rgba(226, 54, 54, 0.4); }
+      100% { opacity: 0.8; box-shadow: inset 0 0 45px rgba(255, 214, 0, 0.6); }
+    }
+    @keyframes screen-shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      20% { transform: translate(-1px, -1px) rotate(-0.2deg); }
+      40% { transform: translate(-2px, 1px) rotate(0.2deg); }
+      60% { transform: translate(1px, -1px) rotate(0deg); }
+      80% { transform: translate(-1px, 2px) rotate(-0.2deg); }
+      100% { transform: translate(2px, 1px) rotate(0.2deg); }
+    }
+
+    /* Spider-Sense cursor wave rings on hover */
+    .spidey-sense-active #cursor-canvas {
+      filter: drop-shadow(0 0 6px var(--spider-red)) hue-rotate(45deg);
+    }
+
+    /* Enhanced 3D card glowing framing borders */
+    .project-card-container::before {
+      content: '';
+      position: absolute;
+      top: -12px; left: -12px; right: -12px; bottom: -12px;
+      border: 2px dashed rgba(226, 54, 54, 0.6);
+      background-image: radial-gradient(rgba(226, 54, 54, 0.03) 15%, transparent 16%);
+      background-size: 8px 8px;
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity 0.4s var(--transition-spring), transform 0.4s var(--transition-spring);
+      transform: scale(0.95) rotate(-0.5deg);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .project-card-container:hover::before {
+      opacity: 1;
+      transform: scale(1.03) rotate(0deg);
+      border-color: var(--spider-red);
+      box-shadow: 0 0 20px var(--spider-glow-r), inset 0 0 10px rgba(226, 54, 54, 0.15);
+    }
+
+    /* Dynamic Spider-Sense border rings on components */
+    .comic-header-box:hover {
+      animation: spidey-sense-vibrate 0.15s infinite alternate;
+      box-shadow: 8px 8px 0px #000, 0 0 15px var(--spider-glow-r);
+      border-color: #ffd600;
+    }
+    @keyframes spidey-sense-vibrate {
+      0% { transform: rotate(-3deg) translate(0.5px, 0.5px); }
+      100% { transform: rotate(-3deg) translate(-0.5px, -0.5px); }
+    }
+
+    /* Floating Spiderweb pattern overlay for project thumbnails */
+    .project-thumbnail-box::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(226, 54, 54, 0.1) 80%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 2;
+    }
+    .project-card-container:hover .project-thumbnail-box::after {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="halftone-bg">
+
+  <!-- Full-screen Spider-Sense border glow overlay -->
+  <div id="spidey-sense-border"></div>
+
+  <!-- HTML Canvas for mouse interactive trails -->
+  <canvas id="cursor-canvas"></canvas>
+
+  <div class="vignette-pulsing"></div>
+
+  <!-- Full-screen backdrop rotating web geometry -->
+  <svg id="global-web-backdrop" viewBox="0 0 1000 1000">
+    <circle cx="500" cy="500" r="100" />
+    <circle cx="500" cy="500" r="200" />
+    <circle cx="500" cy="500" r="300" />
+    <circle cx="500" cy="500" r="400" />
+    <circle cx="500" cy="500" r="480" />
+    <line x1="500" y1="20" x2="500" y2="980" />
+    <line x1="20" y1="500" x2="980" y2="500" />
+    <line x1="160" y1="160" x2="840" y2="840" />
+    <line x1="160" y1="840" x2="840" y2="160" />
+  </svg>
+
+  <div id="glitch-halftone-overlay"></div>
+
+  <!-- Triple Click Swinging Spiderman -->
+  <div id="triple-click-swinger">
+    <svg viewBox="0 0 100 100" fill="%23E23636" style="width: 100%; height: 100%; filter: drop-shadow(0 0 10px var(--spider-red));">
+      <path d="M50,15 C45,15 41,22 41,30 C41,38 45,42 50,42 C55,42 59,38 59,30 C59,22 55,15 50,15 Z M50,45 C41,45 34,55 34,67 C34,79 41,85 50,85 C59,85 66,79 66,67 C66,55 59,45 50,45 Z" fill="#E23636"/>
+      <line x1="50" y1="15" x2="50" y2="-200" stroke="#fff" stroke-width="2"/>
+      <path d="M38,28 C30,22 18,25 10,35 M36,36 C25,32 15,40 8,50 M35,46 C24,45 16,58 10,70" stroke="#E23636" stroke-width="2.5" fill="none"/>
+      <path d="M62,28 C70,22 82,25 90,35 M64,36 C75,32 85,40 92,50 M65,46 C76,45 84,58 90,70" stroke="#E23636" stroke-width="2.5" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- Dynamic 30s Idle Rappelling Spider -->
+  <div id="idle-rappeller-node">
+    <div class="rappeller-thread"></div>
+    <svg class="rappeller-spider" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="14" />
+      <ellipse cx="50" cy="30" rx="9" ry="8" />
+      <path d="M42,26 C30,20 18,24 8,34 M41,36 C28,32 16,42 6,52 M43,44 C26,43 14,56 6,70 M45,52 C28,54 18,72 10,88" stroke="var(--spider-red)" stroke-width="3" fill="none"/>
+      <path d="M58,26 C70,20 82,24 92,34 M59,36 C72,32 84,42 94,52 M57,44 C74,43 86,56 94,70 M55,52 C72,54 82,72 90,88" stroke="var(--spider-red)" stroke-width="3" fill="none"/>
+      <ellipse cx="46" cy="27" rx="2" ry="4" fill="#fff" transform="rotate(-15, 46, 27)" />
+      <ellipse cx="54" cy="27" rx="2" ry="4" fill="#fff" transform="rotate(15, 54, 27)" />
+    </svg>
+  </div>
+
+  <!-- ==========================================================================
+       🎬 LOADING SCREEN (SPIDEY-VERSE PORTAL INTRO)
+       ========================================================================== -->
+  <section id="loader" aria-label="Loading Screen">
+    <!-- Spinning spider portal web lines -->
+    <div class="portal-outer-ring">
+      <svg class="portal-spinning-webs" viewBox="0 0 200 200">
+        <!-- Radial web strands -->
+        <line x1="100" y1="100" x2="100" y2="10" />
+        <line x1="100" y1="100" x2="100" y2="190" />
+        <line x1="100" y1="100" x2="10" y2="100" />
+        <line x1="100" y1="100" x2="190" y2="100" />
+        <line x1="100" y1="100" x2="35" y2="35" />
+        <line x1="100" y1="100" x2="165" y2="165" />
+        <line x1="100" y1="100" x2="35" y2="165" />
+        <line x1="100" y1="100" x2="165" y2="35" />
+        <!-- Web concentric octagons -->
+        <polygon points="100,30 150,50 170,100 150,150 100,170 50,150 30,100 50,50" />
+        <polygon points="100,50 135,65 150,100 135,135 100,150 65,135 50,100 65,65" />
+        <polygon points="100,70 120,80 130,100 120,120 100,130 80,120 70,100 80,80" />
+      </svg>
+
+      <!-- Glitching Spider Silhouette in portal core -->
+      <div class="loader-spider-container">
+        <svg class="glitch-spider-logo" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="14" fill="#000"/>
+          <ellipse cx="50" cy="30" rx="9" ry="8" fill="#000"/>
+          <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50 M35,46 C24,45 16,58 10,70 M40,54 C25,56 16,74 10,88" stroke="var(--spider-red)" stroke-width="4.5" fill="none"/>
+          <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50 M65,46 C76,45 84,58 90,70 M60,54 C75,56 84,74 90,88" stroke="var(--spider-red)" stroke-width="4.5" fill="none"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Spun thread loading tracker -->
+    <div class="loader-spin-track">
+      <div class="loader-spin-bar" id="loader-progress-bar">
+        <svg class="loader-spin-crawler" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="14" fill="var(--spider-red)" />
+          <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50" stroke="#fff" stroke-width="4.5" fill="none"/>
+          <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50" stroke="#fff" stroke-width="4.5" fill="none"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Status Text updates container -->
+    <div class="loader-status-container">
+      <span class="loader-status-text" id="loader-status-target">INITIATING DIMENSIONAL CODES... 📡</span>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       🧭 NAVBAR — LIVING WEB BAR
+       ========================================================================== -->
+  <nav id="navbar">
+    <div class="nav-logo-box" onclick="window.scrollTo(0,0)">
+      <svg id="navbar-logo-spider" class="nav-logo-spider" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="12" />
+        <ellipse cx="50" cy="32" rx="8" ry="7" />
+        <path d="M42,28 C30,22 18,25 10,35 M41,36 C28,32 16,42 6,52 M43,44 C26,43 14,56 6,70 M45,52 C28,54 18,72 10,88" stroke="var(--spider-red)" stroke-width="3.5" fill="none"/>
+        <path d="M58,28 C70,22 82,25 90,35 M59,36 C72,32 84,42 94,52 M57,44 C74,43 86,56 94,70 M55,52 C72,54 82,72 90,88" stroke="var(--spider-red)" stroke-width="3.5" fill="none"/>
+      </svg>
+      <span class="nav-logo-text">ROHIT_U.DEV</span>
+    </div>
+
+    <ul class="nav-links-wrap">
+      <li class="nav-link-item"><a href="#about">Origin</a></li>
+      <li class="nav-link-item"><a href="#experience">Chronicle</a></li>
+      <li class="nav-link-item"><a href="#projects">Web of Work</a></li>
+      <li class="nav-link-item"><a href="#skills">Spider-Sense</a></li>
+      <li class="nav-link-item"><a href="#contact">The Signal</a></li>
+      <svg id="navbar-spider-indicator" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="14" />
+        <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50" stroke="var(--spider-red)" stroke-width="4.5" fill="none"/>
+        <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50" stroke="var(--spider-red)" stroke-width="4.5" fill="none"/>
+      </svg>
+    </ul>
+
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+      <button class="sound-toggle-btn" id="sound-btn" aria-label="Toggle sound synth">
+        🔇
+      </button>
+      <button class="mobile-menu-btn" id="hamburger-btn" aria-label="Open Navigation Menu">
+        <span class="mobile-line mobile-line-1"></span>
+        <span class="mobile-line mobile-line-2"></span>
+        <span class="mobile-line mobile-line-3"></span>
+      </button>
+    </div>
+  </nav>
+
+  <div id="mobile-nav-overlay">
+    <div class="mobile-link-item"><a href="#about" onclick="toggleMobileMenu()">Origin</a></div>
+    <div class="mobile-link-item"><a href="#experience" onclick="toggleMobileMenu()">Chronicle</a></div>
+    <div class="mobile-link-item"><a href="#projects" onclick="toggleMobileMenu()">Web of Work</a></div>
+    <div class="mobile-link-item"><a href="#skills" onclick="toggleMobileMenu()">Spider-Sense</a></div>
+    <div class="mobile-link-item"><a href="#contact" onclick="toggleMobileMenu()">The Signal</a></div>
+  </div>
+
+  <!-- ==========================================================================
+       🌆 HERO SECTION — CINEMATIC OPENER
+       ========================================================================== -->
+  <header id="hero" aria-label="Hero Open">
+    <div class="parallax-container">
+      <div class="parallax-layer layer-sky" data-speed="0"></div>
+      <div class="parallax-layer layer-bg-city" data-speed="0.15" id="p-bg-city"></div>
+      <div class="parallax-layer layer-mid-city" data-speed="0.3" id="p-mid-city"></div>
+      <div class="parallax-layer layer-ledge" data-speed="0.5" id="p-ledge"></div>
+    </div>
+
+    <canvas id="ambient-particles-canvas"></canvas>
+
+    <svg class="anchor-thread-svg">
+      <path id="anchor-thread-1" class="anchor-thread-path" d="M 0,600 Q 200,450 400,280" />
+      <path id="anchor-thread-2" class="anchor-thread-path" d="M 1200,600 Q 1000,450 780,280" />
+    </svg>
+
+    <div id="hero-swinging-spidey" class="spidey-swing-node">
+      <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+        <line x1="50" y1="50" x2="50" y2="-300" stroke="#fff" stroke-width="2"/>
+        <path d="M50,20 C45,20 41,26 41,32 C41,38 45,42 50,42 C55,42 59,38 59,32 C59,26 55,20 50,20 Z M50,44 C42,44 35,53 35,64 C35,75 42,82 50,82 C58,82 65,75 65,64 C65,53 58,44 50,44 Z" fill="var(--spider-red)"/>
+        <path d="M38,30 C28,24 16,28 8,38 M37,39 C26,35 15,44 8,54" stroke="var(--spider-red)" stroke-width="3" fill="none"/>
+        <path d="M62,30 C72,24 84,28 92,38 M63,39 C74,35 85,44 92,54" stroke="var(--spider-red)" stroke-width="3" fill="none"/>
+      </svg>
+    </div>
+
+    <svg id="hero-ledge-spidey" class="ledge-spidey-landing" viewBox="0 0 120 120">
+      <path d="M60,65 C55,65 52,69 52,74 C52,79 55,83 60,83 C65,83 68,79 68,74 C68,69 65,65 60,65 Z M60,85 C51,85 43,92 43,101 C43,110 51,117 60,117 C69,117 77,110 77,101 C77,92 69,85 60,85 Z" fill="#020205"/>
+      <path d="M42,75 C25,72 15,85 8,98 M40,84 C26,89 16,100 10,112" stroke="#020205" stroke-width="3.5" fill="none"/>
+      <path d="M78,75 C95,72 105,85 112,98 M80,84 C94,89 104,100 110,112" stroke="#020205" stroke-width="3.5" fill="none"/>
+    </svg>
+
+    <div id="hero-landing-shockwave" class="shockwave-ripple"></div>
+
+    <div class="hero-content">
+      <div class="headline-wrap" id="spring-headline">
+        <span class="headline-letter" style="animation-delay: 0.1s">R</span>
+        <span class="headline-letter" style="animation-delay: 0.15s">O</span>
+        <span class="headline-letter" style="animation-delay: 0.2s">H</span>
+        <span class="headline-letter" style="animation-delay: 0.25s">I</span>
+        <span class="headline-letter" style="animation-delay: 0.3s">T</span>
+        <span class="headline-letter" style="animation-delay: 0.35s">&nbsp;</span>
+        <span class="headline-letter" style="animation-delay: 0.4s">U</span>
+      </div>
+
+      <div class="hero-subheadline-box">
+        <span class="subheadline-text" id="typewriter-sub"></span>
+      </div>
+
+      <div class="hero-ctas">
+        <button class="cta-btn cta-btn-red" onclick="window.scrollTo(0, document.getElementById('projects').offsetTop)">View My Work</button>
+        <button class="cta-btn" onclick="window.scrollTo(0, document.getElementById('contact').offsetTop)">Contact Me</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       👤 ABOUT ME — THE ORIGIN STORY
+       ========================================================================== -->
+  <section id="about" class="section-wrap" aria-label="About Origin">
+    <svg class="corner-web corner-web-tl" viewBox="0 0 100 100">
+      <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L40,90 M0,0 L90,40" stroke="currentColor"/>
+      <path d="M0,20 A20,20 0 0,0 20,0 M0,45 A45,45 0 0,0 45,0 M0,75 A75,75 0 0,0 75,0" stroke="currentColor" fill="none"/>
+    </svg>
+    <svg class="corner-web corner-web-br" viewBox="0 0 100 100">
+      <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L40,90 M0,0 L90,40" stroke="currentColor"/>
+      <path d="M0,20 A20,20 0 0,0 20,0 M0,45 A45,45 0 0,0 45,0 M0,75 A75,75 0 0,0 75,0" stroke="currentColor" fill="none"/>
+    </svg>
+
+    <div class="comic-header-box">
+      <h2 class="comic-header-title">Chapter 01: The Origin</h2>
+    </div>
+
+    <div class="about-panels-grid">
+      <div class="hex-portrait-container">
+        <svg class="hex-border-svg hex-glow-cycle" viewBox="0 0 100 115">
+          <polygon class="hex-border-path" points="50,2 98,29 98,86 50,113 2,86 2,29" />
+        </svg>
+        <div class="hex-portrait-inner">
+          <div class="hex-portrait-placeholder">
+            <div class="vintage-halftone-overlay"></div>
+            <svg class="hex-portrait-logo" viewBox="0 0 100 100">
+              <path d="M50,10 C20,10 15,45 15,65 C15,85 32,95 50,95 C68,95 85,85 85,65 C85,45 80,10 50,10 Z" fill="var(--spider-red)"/>
+              <path d="M50,10 L50,95 M15,65 L85,65 M20,30 L80,30 M15,45 L85,45 M20,80 L80,80" stroke="#000" stroke-width="1.5" fill="none"/>
+              <path d="M50,45 A 25 25 0 0 1 23 58 M50,45 A 25 25 0 0 0 77 58" stroke="#000" stroke-width="1.5" fill="none"/>
+              <path d="M26,45 C22,48 20,62 38,70 C48,74 44,55 42,50 C40,46 32,45 26,45 Z" fill="#fff" stroke="#000" stroke-width="5"/>
+              <path d="M74,45 C78,48 80,62 62,70 C52,74 56,55 58,50 C60,46 68,45 74,45 Z" fill="#fff" stroke="#000" stroke-width="5"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-bio-panel">
+        <p class="about-bio-text" id="vintage-typewriter-target">
+          <!-- Populated by typewriter -->
+        </p>
+        
+        <div class="signature-wrap">
+          <span class="sig-text">Rohit U ✦</span>
+          <span class="folio-stamp">FOLIO NO. 01 / N "Roots & Code"</span>
+        </div>
+      </div>
+
+
+    </div>
+  </section>
+
+  <div class="section-divider-wrap" id="divider-1">
+    <div class="divider-thread"></div>
+    <svg class="divider-spider" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="14" />
+      <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50 M35,46 C24,45 16,58 10,70" stroke="currentColor" stroke-width="4.5" fill="none"/>
+      <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50 M65,46 C76,45 84,58 90,70" stroke="currentColor" stroke-width="4.5" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- ==========================================================================
+       💼 EXPERIENCE — THE CHRONICLE (STORY TIMELINE)
+       ========================================================================== -->
+  <section id="experience" class="section-wrap" aria-label="Academic Archive">
+    <svg class="corner-web corner-web-tl" viewBox="0 0 100 100">
+      <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L40,90 M0,0 L90,40" stroke="currentColor"/>
+      <path d="M0,20 A20,20 0 0,0 20,0 M0,45 A45,45 0 0,0 45,0 M0,75 A75,75 0 0,0 75,0" stroke="currentColor" fill="none"/>
+    </svg>
+    <svg class="corner-web corner-web-br" viewBox="0 0 100 100">
+      <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L40,90 M0,0 L90,40" stroke="currentColor"/>
+      <path d="M0,20 A20,20 0 0,0 20,0 M0,45 A45,45 0 0,0 45,0 M0,75 A75,75 0 0,0 75,0" stroke="currentColor" fill="none"/>
+    </svg>
+
+    <div class="comic-header-box">
+      <h2 class="comic-header-title">Chapter 02: Academic Journey</h2>
+    </div>
+
+    <div class="experience-timeline-container">
+      <svg class="timeline-spine-svg" height="100%">
+        <line class="timeline-spine-line" x1="4" y1="0" x2="4" y2="100%" />
+        <line id="timeline-scroll-progress" class="timeline-spine-progress" x1="4" y1="0" x2="4" y2="0" />
+      </svg>
+
+      <!-- Entry 1 -->
+      <div class="timeline-entry-row">
+        <div class="timeline-spine-dot"></div>
+        <div class="timeline-card-col">
+          <div class="timeline-comic-panel">
+            <div class="timeline-card-header">
+              <h3 class="timeline-card-title">Integrated MCA 🎓</h3>
+              <span class="timeline-card-badge">AMRITA</span>
+            </div>
+            <div class="timeline-card-body">
+              <h4 class="timeline-company-info">Amrita Vishwa Vidyapeetham, Mysuru Campus</h4>
+              <span class="timeline-date-info">2024 – 2029</span>
+              <ul class="timeline-bullets-list">
+                <li class="timeline-bullet-item">Comprehensive 5-year integrated program focusing on modern software architectures.</li>
+                <li class="timeline-bullet-item">Deep-dives into advanced database structures, algorithms, and microservices.</li>
+                <li class="timeline-bullet-item">Mastery of state management, scalable web layouts, and real-time backend environments.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 2 -->
+      <div class="timeline-entry-row">
+        <div class="timeline-spine-dot"></div>
+        <div class="timeline-card-col">
+          <div class="timeline-comic-panel">
+            <div class="timeline-card-header">
+              <h3 class="timeline-card-title">PU (PCMB) 🧪</h3>
+              <span class="timeline-card-badge">MARIMALLAPPA</span>
+            </div>
+            <div class="timeline-card-body">
+              <h4 class="timeline-company-info">Marimallappa PU College</h4>
+              <span class="timeline-date-info">2022 – 2024</span>
+              <ul class="timeline-bullets-list">
+                <li class="timeline-bullet-item">Specialized pre-university coursework in Physics, Chemistry, Mathematics, and Biology.</li>
+                <li class="timeline-bullet-item">Cultivated strong structured logic, analytical problem solving, and math systems.</li>
+                <li class="timeline-bullet-item">Led collaborative student research presentations and early coding studies.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 3 -->
+      <div class="timeline-entry-row">
+        <div class="timeline-spine-dot"></div>
+        <div class="timeline-card-col">
+          <div class="timeline-comic-panel">
+            <div class="timeline-card-header">
+              <h3 class="timeline-card-title">Schooling & High School 🏫</h3>
+              <span class="timeline-card-badge">ROTARY</span>
+            </div>
+            <div class="timeline-card-body">
+              <h4 class="timeline-company-info">Ideal Jawa Rotary School, Mysore</h4>
+              <span class="timeline-date-info">2011 – 2022</span>
+              <ul class="timeline-bullets-list">
+                <li class="timeline-bullet-item">Established early foundations in mathematical logic, physics concepts, and engineering curiosity.</li>
+                <li class="timeline-bullet-item">Excelled in regional academic contests and local software challenges.</li>
+                <li class="timeline-bullet-item">Developed logical frameworks and early command line script architectures.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider-wrap" id="divider-2">
+    <div class="divider-thread"></div>
+    <svg class="divider-spider" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="14" />
+      <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50 M35,46 C24,45 16,58 10,70" stroke="currentColor" stroke-width="4.5" fill="none"/>
+      <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50 M65,46 C76,45 84,58 90,70" stroke="currentColor" stroke-width="4.5" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- ==========================================================================
+       🗂️ PROJECTS — THE WEB GALLERY
+       ========================================================================== -->
+  <section id="projects" class="section-wrap" aria-label="Web Gallery">
+    <svg class="corner-web corner-web-tl" viewBox="0 0 100 100">
+      <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L40,90 M0,0 L90,40" stroke="currentColor"/>
+      <path d="M0,20 A20,20 0 0,0 20,0 M0,45 A45,45 0 0,0 45,0 M0,75 A75,75 0 0,0 75,0" stroke="currentColor" fill="none"/>
+    </svg>
+    <svg class="corner-web corner-web-br" viewBox="0 0 100 100">
+      <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L40,90 M0,0 L90,40" stroke="currentColor"/>
+      <path d="M0,20 A20,20 0 0,0 20,0 M0,45 A45,45 0 0,0 45,0 M0,75 A75,75 0 0,0 75,0" stroke="currentColor" fill="none"/>
+    </svg>
+
+    <div class="projects-hanging-letters">
+      <div class="hanging-sign-box"><div class="hanging-thread"></div><div class="hanging-sign-letter">M</div></div>
+      <div class="hanging-sign-box"><div class="hanging-thread"></div><div class="hanging-sign-letter">Y</div></div>
+      <div class="hanging-sign-box" style="margin-right: 15px;"><div class="hanging-thread"></div><div class="hanging-sign-letter">-</div></div>
+      <div class="hanging-sign-box"><div class="hanging-thread"></div><div class="hanging-sign-letter">P</div></div>
+      <div class="hanging-sign-box"><div class="hanging-thread"></div><div class="hanging-sign-letter">O</div></div>
+      <div class="hanging-sign-box"><div class="hanging-thread"></div><div class="hanging-sign-letter">R</div></div>
+      <div class="hanging-sign-box"><div class="hanging-thread"></div><div class="hanging-sign-letter">T</div></div>
+      <div class="hanging-sign-box"><div class="hanging-thread"></div><div class="hanging-sign-letter">F</div></div>
+      <div class="hanging-sign-box"><div class="hanging-thread"></div><div class="hanging-sign-letter">O</div></div>
+      <div class="hanging-sign-box"><div class="hanging-thread"></div><div class="hanging-sign-letter">L</div></div>
+      <div class="hanging-sign-box"><div class="hanging-thread"></div><div class="hanging-sign-letter">I</div></div>
+      <div class="hanging-sign-box"><div class="hanging-thread"></div><div class="hanging-sign-letter">O</div></div>
+    </div>
+
+    <div class="projects-3d-grid">
+      <!-- Project 1 -->
+      <div class="project-card-container">
+        <div class="project-card-inner">
+          <div class="project-thumbnail-box">
+            <svg viewBox="0 0 300 150" style="width: 100%; height: 100%; display: block;">
+              <rect width="300" height="150" fill="#060610"/>
+              <!-- Glowing digital brain wireframe -->
+              <path d="M150,25 C120,25 110,45 125,65 C110,80 120,105 150,100 C180,105 190,80 175,65 C190,45 180,25 150,25 Z" stroke="var(--spider-red)" stroke-dasharray="2 2" stroke-width="1.5" fill="none"/>
+              <path d="M150,35 C135,35 128,45 138,58 C128,70 135,88 150,85 C165,88 172,70 162,58 C172,45 165,35 150,35 Z" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.2" fill="none"/>
+              <!-- Synapse connectors -->
+              <circle cx="150" cy="25" r="3" fill="#fff"/>
+              <circle cx="125" cy="65" r="3" fill="var(--spider-red)"/>
+              <circle cx="175" cy="65" r="3" fill="var(--spider-red)"/>
+              <circle cx="150" cy="100" r="3" fill="#fff"/>
+              <!-- Notes/Quizzes checklist page on left -->
+              <rect x="35" y="40" width="45" height="60" rx="3" fill="var(--spider-silk)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+              <line x1="43" y1="55" x2="68" y2="55" stroke="#fff" stroke-width="1.5"/>
+              <line x1="43" y1="70" x2="58" y2="70" stroke="#fff" stroke-width="1.5"/>
+              <line x1="43" y1="85" x2="65" y2="85" stroke="var(--spider-red)" stroke-width="1.5"/>
+              <!-- Quiz Checkmark -->
+              <path d="M68,68 L73,73 L83,63" stroke="#ffd600" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <!-- Retention curve on right -->
+              <path d="M220,90 Q240,40 275,35" stroke="var(--spider-red)" stroke-width="2.5" fill="none"/>
+              <line x1="215" y1="90" x2="280" y2="90" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+              <line x1="220" y1="30" x2="220" y2="95" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+              <text x="250" y="25" fill="var(--spider-white)" font-family="monospace" font-size="8">FORGETTING CURVE</text>
+              <text x="150" y="125" fill="var(--spider-white)" font-family="var(--bangers-font)" font-size="12" text-anchor="middle" letter-spacing="1">AI STUDY COMPILER</text>
+            </svg>
+            <svg class="project-spider-watermark" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="14" />
+              <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50" stroke="currentColor" stroke-width="4" fill="none"/>
+              <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50" stroke="currentColor" stroke-width="4" fill="none"/>
+            </svg>
+          </div>
+          <div class="project-card-content">
+            <h3 class="project-card-title">AI Study Assistant 🧠</h3>
+            <p class="project-card-desc">An intelligent academic tool that ingests raw lecture notes and synthesizes standard interactive quizzes. Features spacing-repetition algorithms for cognitive memory tracking.</p>
+            <div class="project-tech-tags">
+              <span class="tech-tag-badge">Natural Language</span>
+              <span class="tech-tag-badge">IndexedDB</span>
+              <span class="tech-tag-badge">Memory Models</span>
+            </div>
+            <a href="#" class="card-git-link">GitHub →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 2 -->
+      <div class="project-card-container">
+        <div class="project-card-inner">
+          <div class="project-thumbnail-box">
+            <svg viewBox="0 0 300 150" style="width: 100%; height: 100%; display: block;">
+              <rect width="300" height="150" fill="#060610"/>
+              <!-- Intersection tracks -->
+              <path d="M0,55 L300,55 M0,95 L300,95 M120,0 L120,150 M180,0 L180,150" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+              <path d="M0,75 L300,75 M150,0 L150,150" stroke="var(--spider-silk)" stroke-dasharray="5 5" stroke-width="1.5"/>
+              <!-- Traffic flow dots (cars) -->
+              <circle cx="40" cy="65" r="3" fill="#fff"/>
+              <circle cx="80" cy="65" r="3" fill="#fff"/>
+              <circle cx="105" cy="65" r="3" fill="var(--spider-red)" filter="drop-shadow(0 0 3px var(--spider-red))"/>
+              <circle cx="135" cy="40" r="3" fill="#fff"/>
+              <circle cx="135" cy="110" r="3" fill="var(--spider-red)" filter="drop-shadow(0 0 3px var(--spider-red))"/>
+              <circle cx="210" cy="85" r="3" fill="#fff"/>
+              <circle cx="260" cy="85" r="3" fill="#fff"/>
+              <!-- Congested zone prediction alert -->
+              <circle cx="150" cy="75" r="35" fill="none" stroke="var(--spider-red)" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <polygon points="135,65 165,65 150,45" fill="rgba(226, 54, 54, 0.2)" stroke="var(--spider-red)" stroke-width="1.5"/>
+              <text x="150" y="61" fill="#fff" font-family="monospace" font-size="7" font-weight="bold" text-anchor="middle">!</text>
+              <!-- CCTV scanning ray -->
+              <path d="M280,20 L220,110 L280,110 Z" fill="rgba(0, 49, 83, 0.25)" stroke="var(--spider-blue)" stroke-width="0.5"/>
+              <circle cx="280" cy="20" r="6" fill="#fff" filter="drop-shadow(0 0 5px var(--spider-red))"/>
+              <text x="30" y="30" fill="rgba(255,255,255,0.4)" font-family="monospace" font-size="9">CCTV SCAN RATE: 60Hz</text>
+            </svg>
+            <svg class="project-spider-watermark" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="14" />
+              <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50" stroke="currentColor" stroke-width="4" fill="none"/>
+              <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50" stroke="currentColor" stroke-width="4" fill="none"/>
+            </svg>
+          </div>
+          <div class="project-card-content">
+            <h3 class="project-card-title">Traffic Prediction System 🚗</h3>
+            <p class="project-card-desc">An AI-augmented traffic telemetry console parsing live CCTV feeds. Computes flow densities, vehicle clusters, and triggers predictive congestion warnings minutes in advance.</p>
+            <div class="project-tech-tags">
+              <span class="tech-tag-badge">Computer Vision</span>
+              <span class="tech-tag-badge">Time Series</span>
+              <span class="tech-tag-badge">Data Grids</span>
+            </div>
+            <a href="#" class="card-git-link">Predict ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 3 -->
+      <div class="project-card-container">
+        <div class="project-card-inner">
+          <div class="project-thumbnail-box">
+            <svg viewBox="0 0 300 150" style="width: 100%; height: 100%; display: block;">
+              <rect width="300" height="150" fill="#060610"/>
+              <!-- Multi-hop peer nodes -->
+              <circle cx="60" cy="45" r="16" fill="var(--spider-silk)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+              <path d="M54,45 H66 M60,39 V51" stroke="#fff" stroke-width="1.5"/>
+              
+              <circle cx="240" cy="105" r="16" fill="var(--spider-silk)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+              <path d="M234,105 H246 M240,99 V111" stroke="#fff" stroke-width="1.5"/>
+              
+              <!-- Central mesh antenna tower -->
+              <line x1="150" y1="50" x2="150" y2="120" stroke="var(--spider-red)" stroke-width="2.5"/>
+              <line x1="150" y1="120" x2="135" y2="135" stroke="var(--spider-red)" stroke-width="2"/>
+              <line x1="150" y1="120" x2="165" y2="135" stroke="var(--spider-red)" stroke-width="2"/>
+              <circle cx="150" cy="45" r="8" fill="#fff" filter="drop-shadow(0 0 6px var(--spider-red))"/>
+              
+              <!-- Concentric emergency radio sweeps -->
+              <circle cx="150" cy="45" r="24" fill="none" stroke="var(--spider-red)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>
+              <circle cx="150" cy="45" r="44" fill="none" stroke="var(--spider-red)" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
+              <circle cx="150" cy="45" r="64" fill="none" stroke="var(--spider-red)" stroke-width="1" stroke-dasharray="4 4" opacity="0.2"/>
+              
+              <!-- P2P hops routes -->
+              <path d="M60,61 Q150,110 224,105" stroke="var(--spider-blue)" stroke-width="1.5" stroke-dasharray="2 2" fill="none"/>
+              <path d="M60,61 L142,45" stroke="#fff" stroke-width="1" stroke-dasharray="2 2"/>
+              <path d="M240,89 L158,45" stroke="#fff" stroke-width="1" stroke-dasharray="2 2"/>
+              
+              <text x="150" y="25" fill="var(--spider-white)" font-family="monospace" font-size="8" text-anchor="middle">OFFLINE MESH PROTOCOL</text>
+            </svg>
+            <svg class="project-spider-watermark" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="14" />
+              <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50" stroke="currentColor" stroke-width="4" fill="none"/>
+              <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50" stroke="currentColor" stroke-width="4" fill="none"/>
+            </svg>
+          </div>
+          <div class="project-card-content">
+            <h3 class="project-card-title">Offline Emergency Chat App 📶</h3>
+            <p class="project-card-desc">A highly resilient, serverless messaging application operating entirely offline. Links nearby peer devices using local multi-hop Bluetooth and Wi-Fi Direct mesh routing protocols.</p>
+            <div class="project-tech-tags">
+              <span class="tech-tag-badge">WebRTC</span>
+              <span class="tech-tag-badge">Service Workers</span>
+              <span class="tech-tag-badge">Mesh Protocols</span>
+            </div>
+            <a href="#" class="card-git-link">Network →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 4 -->
+      <div class="project-card-container">
+        <div class="project-card-inner">
+          <div class="project-thumbnail-box">
+            <svg viewBox="0 0 300 150" style="width: 100%; height: 100%; display: block;">
+              <rect width="300" height="150" fill="#060610"/>
+              <!-- Resume Page layout -->
+              <rect x="50" y="15" width="200" height="120" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+              <!-- Resume Line Items -->
+              <line x1="70" y1="35" x2="130" y2="35" stroke="#fff" stroke-width="2.5"/>
+              <line x1="70" y1="50" x2="160" y2="50" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+              
+              <line x1="70" y1="75" x2="150" y2="75" stroke="#fff" stroke-width="2.5"/>
+              <line x1="70" y1="90" x2="180" y2="90" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+              
+              <line x1="70" y1="110" x2="120" y2="110" stroke="#fff" stroke-width="2.5"/>
+              <!-- Verification flags -->
+              <!-- Verified tag -->
+              <path d="M190,30 L195,35 L208,22" stroke="#4caf50" stroke-width="3" fill="none" filter="drop-shadow(0 0 3px #4caf50)"/>
+              <!-- False tag -->
+              <path d="M195,70 L205,80 M205,70 L195,80" stroke="var(--spider-red)" stroke-width="3" fill="none" filter="drop-shadow(0 0 3px var(--spider-red))"/>
+              
+              <!-- Scanner Bar with red laser beam -->
+              <line x1="45" y1="60" x2="255" y2="60" stroke="var(--spider-red)" stroke-width="2" filter="drop-shadow(0 0 5px var(--spider-red))"/>
+              
+              <!-- Magnifying glass looking at verified -->
+              <circle cx="200" cy="30" r="14" fill="none" stroke="#fff" stroke-width="2"/>
+              <line x1="210" y1="40" x2="225" y2="55" stroke="#fff" stroke-width="3"/>
+              
+              <text x="245" y="130" fill="var(--spider-white)" font-family="monospace" font-size="8" text-anchor="end">SEMANTIC ANALYSIS</text>
+            </svg>
+            <svg class="project-spider-watermark" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="14" />
+              <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50" stroke="currentColor" stroke-width="4" fill="none"/>
+              <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50" stroke="currentColor" stroke-width="4" fill="none"/>
+            </svg>
+          </div>
+          <div class="project-card-content">
+            <h3 class="project-card-title">Resume Truth Analyzer 🔍</h3>
+            <p class="project-card-desc">An automated credential vetting tool. Runs semantic language models to cross-reference listed CV skill sets with actual active codebase structures and repository commits.</p>
+            <div class="project-tech-tags">
+              <span class="tech-tag-badge">Resume Parsing</span>
+              <span class="tech-tag-badge">Semantics API</span>
+              <span class="tech-tag-badge">Verification</span>
+            </div>
+            <a href="#" class="card-git-link">Analyze ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 5 -->
+      <div class="project-card-container">
+        <div class="project-card-inner">
+          <div class="project-thumbnail-box">
+            <svg viewBox="0 0 300 150" style="width: 100%; height: 100%; display: block;">
+              <rect width="300" height="150" fill="#060610"/>
+              <!-- Graph Grid lines -->
+              <path d="M30,120 L270,120 M30,30 L30,125" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+              <!-- Bar chart columns (Savings growth) -->
+              <rect x="50" y="95" width="20" height="25" fill="var(--spider-silk)" stroke="rgba(255,255,255,0.2)"/>
+              <rect x="90" y="80" width="20" height="40" fill="var(--spider-silk)" stroke="rgba(255,255,255,0.2)"/>
+              <rect x="130" y="65" width="20" height="55" fill="var(--spider-silk)" stroke="var(--spider-red)" stroke-width="1"/>
+              <rect x="170" y="45" width="20" height="75" fill="var(--spider-silk)" stroke="var(--spider-red)" stroke-width="1"/>
+              
+              <!-- AI Projection curving path -->
+              <path d="M30,115 C90,105 150,60 250,30" stroke="#ffd600" stroke-width="3.5" fill="none" filter="drop-shadow(0 0 6px #ffd600)"/>
+              
+              <!-- Upper bounds bounds dashed paths -->
+              <path d="M30,115 C90,95 150,40 250,15" stroke="rgba(255, 255, 255, 0.2)" stroke-dasharray="2 2" stroke-width="1.5" fill="none"/>
+              <!-- Lower bounds bounds dashed paths -->
+              <path d="M30,115 C90,112 150,80 250,55" stroke="rgba(255, 255, 255, 0.2)" stroke-dasharray="2 2" stroke-width="1.5" fill="none"/>
+              
+              <!-- Glowing dollar/wealth coin -->
+              <circle cx="250" cy="30" r="10" fill="#ffd600" stroke="#fff" stroke-width="1"/>
+              <text x="250" y="33" fill="#000" font-family="sans-serif" font-size="9" font-weight="bold" text-anchor="middle">$</text>
+              
+              <text x="38" y="25" fill="rgba(255,255,255,0.4)" font-family="monospace" font-size="8">MONTE CARLO PROJECTIONS</text>
+            </svg>
+            <svg class="project-spider-watermark" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="14" />
+              <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50" stroke="currentColor" stroke-width="4" fill="none"/>
+              <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50" stroke="currentColor" stroke-width="4" fill="none"/>
+            </svg>
+          </div>
+          <div class="project-card-content">
+            <h3 class="project-card-title">Finance Future Simulator 💰</h3>
+            <p class="project-card-desc">An interactive simulation matrix modeling future cash-flows and asset accumulations. Employs stochastic forecasting to project lifetime savings milestones under varying lifestyle plans.</p>
+            <div class="project-tech-tags">
+              <span class="tech-tag-badge">AI Analytics</span>
+              <span class="tech-tag-badge">Monte Carlo</span>
+              <span class="tech-tag-badge">Canvas Graph</span>
+            </div>
+            <a href="#" class="card-git-link">Simulate ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 6 -->
+      <div class="project-card-container">
+        <div class="project-card-inner">
+          <div class="project-thumbnail-box">
+            <svg viewBox="0 0 300 150" style="width: 100%; height: 100%; display: block;">
+              <rect width="300" height="150" fill="#060610"/>
+              <!-- Retro Game Controller D-pad and buttons -->
+              <rect x="30" y="30" width="100" height="60" rx="10" fill="var(--spider-silk)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+              <!-- Game pad Dpad -->
+              <path d="M48,60 H64 M56,52 V68" stroke="#fff" stroke-width="3" stroke-linecap="square"/>
+              <!-- Game pad buttons -->
+              <circle cx="100" cy="56" r="5" fill="var(--spider-red)"/>
+              <circle cx="112" cy="64" r="5" fill="var(--spider-red)"/>
+              
+              <!-- Facial emotion mesh mapping on right -->
+              <circle cx="220" cy="60" r="28" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="2 2"/>
+              <!-- Eyes mapping -->
+              <circle cx="210" cy="54" r="3" fill="#fff"/>
+              <circle cx="230" cy="54" r="3" fill="#fff"/>
+              <!-- Smile mapping curve -->
+              <path d="M210,72 Q220,82 230,72" stroke="var(--spider-red)" stroke-width="2.5" fill="none"/>
+              <!-- Vertex grid markers -->
+              <line x1="210" y1="72" x2="220" y2="88" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
+              <line x1="230" y1="72" x2="220" y2="88" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
+              <circle cx="220" cy="40" r="2" fill="var(--spider-red)"/>
+              <circle cx="220" cy="88" r="2" fill="var(--spider-red)"/>
+              
+              <!-- Dynamic difficulty scale in bottom center -->
+              <text x="150" y="115" fill="var(--spider-white)" font-family="monospace" font-size="8" text-anchor="middle">DIFFICULTY SLIDER (ADAPTIVE)</text>
+              <line x1="50" y1="128" x2="250" y2="128" stroke="rgba(255,255,255,0.2)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="50" y1="128" x2="190" y2="128" stroke="var(--spider-red)" stroke-width="3" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--spider-red))"/>
+              <circle cx="190" cy="128" r="5" fill="#fff"/>
+            </svg>
+            <svg class="project-spider-watermark" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="14" />
+              <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50" stroke="currentColor" stroke-width="4" fill="none"/>
+              <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50" stroke="currentColor" stroke-width="4" fill="none"/>
+            </svg>
+          </div>
+          <div class="project-card-content">
+            <h3 class="project-card-title">Emotion-Based Game Engine 🎮</h3>
+            <p class="project-card-desc">An adaptive gaming ecosystem tracking player facial biometrics through real-time feeds. Dynamically balances difficulty variables and storyline branches based on detected emotional responses.</p>
+            <div class="project-tech-tags">
+              <span class="tech-tag-badge">Face Tracking</span>
+              <span class="tech-tag-badge">Adaptive AI</span>
+              <span class="tech-tag-badge">WebGL Canvas</span>
+            </div>
+            <a href="#" class="card-git-link">Play ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider-wrap" id="divider-3">
+    <div class="divider-thread"></div>
+    <svg class="divider-spider" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="14" />
+      <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50 M35,46 C24,45 16,58 10,70" stroke="currentColor" stroke-width="4.5" fill="none"/>
+      <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50 M65,46 C76,45 84,58 90,70" stroke="currentColor" stroke-width="4.5" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- ==========================================================================
+       🕷️ SKILLS — THE RADIAL WEB
+       ========================================================================== -->
+  <section id="skills" class="section-wrap" aria-label="Skills Web">
+    <svg class="corner-web corner-web-tl" viewBox="0 0 100 100">
+      <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L40,90 M0,0 L90,40" stroke="currentColor"/>
+      <path d="M0,20 A20,20 0 0,0 20,0 M0,45 A45,45 0 0,0 45,0 M0,75 A75,75 0 0,0 75,0" stroke="currentColor" fill="none"/>
+    </svg>
+    <svg class="corner-web corner-web-br" viewBox="0 0 100 100">
+      <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L40,90 M0,0 L90,40" stroke="currentColor"/>
+      <path d="M0,20 A20,20 0 0,0 20,0 M0,45 A45,45 0 0,0 45,0 M0,75 A75,75 0 0,0 75,0" stroke="currentColor" fill="none"/>
+    </svg>
+
+    <div class="comic-header-box">
+      <h2 class="comic-header-title">Chapter 03: Spider-Sense</h2>
+    </div>
+
+    <div id="skills-comic-bubble" class="comic-bubble-tooltip">
+      <span>Html5 - 95%</span>
+    </div>
+
+    <div class="skills-interactive-container">
+      <div class="skills-radial-glow"></div>
+
+      <svg class="skills-svg-web" viewBox="0 0 600 600">
+        <g class="web-structural-threads">
+          <!-- Outer Octagon -->
+          <polygon points="300,50 476,123 550,300 476,476 300,550 123,476 50,300 123,123" />
+          <!-- Middle Octagon -->
+          <polygon points="300,130 420,180 470,300 420,420 300,470 180,420 130,300 180,180" />
+          <!-- Inner Octagon -->
+          <polygon points="300,210 363,237 390,300 363,363 300,390 237,363 210,300 237,237" />
+          
+          <line x1="300" y1="300" x2="300" y2="50" />
+          <line x1="300" y1="300" x2="476" y2="123" />
+          <line x1="300" y1="300" x2="550" y2="300" />
+          <line x1="300" y1="300" x2="476" y2="476" />
+          <line x1="300" y1="300" x2="300" y2="550" />
+          <line x1="300" y1="300" x2="123" y2="476" />
+          <line x1="300" y1="300" x2="50" y2="300" />
+          <line x1="300" y1="300" x2="123" y2="123" />
+        </g>
+
+        <!-- Vectors links -->
+        <line class="web-connecting-path c-link-js" x1="300" y1="300" x2="300" y2="210" />
+        <line class="web-connecting-path c-link-css" x1="300" y1="300" x2="363" y2="237" />
+        <line class="web-connecting-path c-link-node" x1="300" y1="300" x2="390" y2="300" />
+
+        <line class="web-connecting-path c-link-js" x1="300" y1="210" x2="300" y2="130" />
+        <line class="web-connecting-path c-link-css" x1="363" y1="237" x2="420" y2="180" />
+        <line class="web-connecting-path c-link-node" x1="390" y1="300" x2="470" y2="300" />
+
+        <line class="web-connecting-path c-link-js" x1="300" y1="130" x2="300" y2="50" />
+        <line class="web-connecting-path c-link-css" x1="420" y1="180" x2="476" y2="123" />
+        <line class="web-connecting-path c-link-node" x1="470" y1="300" x2="550" y2="300" />
+
+        <!-- 1. OUTER RING NODES (Logic & Structure) -->
+        <g class="skill-node-orb" transform="translate(300, 50)" data-name="ES6 JavaScript" data-percent="Logic">
+          <circle class="skill-node-pulse-ring" cx="0" cy="0" />
+          <circle class="skill-node-circle" cx="0" cy="0" r="24" />
+          <text class="skill-node-text" x="0" y="4">JS</text>
+        </g>
+        <g class="skill-node-orb" transform="translate(476, 123)" data-name="Python" data-percent="Logic">
+          <circle class="skill-node-pulse-ring" cx="0" cy="0" />
+          <circle class="skill-node-circle" cx="0" cy="0" r="24" />
+          <text class="skill-node-text" x="0" y="4">PY</text>
+        </g>
+        <g class="skill-node-orb" transform="translate(550, 300)" data-name="Node.js" data-percent="Logic">
+          <circle class="skill-node-pulse-ring" cx="0" cy="0" />
+          <circle class="skill-node-circle" cx="0" cy="0" r="24" />
+          <text class="skill-node-text" x="0" y="4">NODE</text>
+        </g>
+        <g class="skill-node-orb" transform="translate(476, 476)" data-name="SQL Databases" data-percent="Logic">
+          <circle class="skill-node-pulse-ring" cx="0" cy="0" />
+          <circle class="skill-node-circle" cx="0" cy="0" r="24" />
+          <text class="skill-node-text" x="0" y="4">SQL</text>
+        </g>
+
+        <!-- 2. MIDDLE RING NODES (Form & Feel) -->
+        <g class="skill-node-orb" transform="translate(300, 130)" data-name="UI / UX Design" data-percent="Feel">
+          <circle class="skill-node-pulse-ring" cx="0" cy="0" />
+          <circle class="skill-node-circle" cx="0" cy="0" r="20" />
+          <text class="skill-node-text" x="0" y="4">UI/UX</text>
+        </g>
+        <g class="skill-node-orb" transform="translate(420, 180)" data-name="CSS Animations" data-percent="Feel">
+          <circle class="skill-node-pulse-ring" cx="0" cy="0" />
+          <circle class="skill-node-circle" cx="0" cy="0" r="20" />
+          <text class="skill-node-text" x="0" y="4">ANIM</text>
+        </g>
+        <g class="skill-node-orb" transform="translate(470, 300)" data-name="Figma Studio" data-percent="Feel">
+          <circle class="skill-node-pulse-ring" cx="0" cy="0" />
+          <circle class="skill-node-circle" cx="0" cy="0" r="20" />
+          <text class="skill-node-text" x="0" y="4">FIG</text>
+        </g>
+
+        <!-- 3. INNER RING NODES (Mind & Method) -->
+        <g class="skill-node-orb" transform="translate(300, 210)" data-name="Problem Solving" data-percent="Mind">
+          <circle class="skill-node-pulse-ring" cx="0" cy="0" />
+          <circle class="skill-node-circle" cx="0" cy="0" r="16" />
+          <text class="skill-node-text" x="0" y="4">SOLV</text>
+        </g>
+        <g class="skill-node-orb" transform="translate(363, 237)" data-name="Systems Thinking" data-percent="Mind">
+          <circle class="skill-node-pulse-ring" cx="0" cy="0" />
+          <circle class="skill-node-circle" cx="0" cy="0" r="16" />
+          <text class="skill-node-text" x="0" y="4">SYS</text>
+        </g>
+        <g class="skill-node-orb" transform="translate(390, 300)" data-name="Empathy-first UX" data-percent="Mind">
+          <circle class="skill-node-pulse-ring" cx="0" cy="0" />
+          <circle class="skill-node-circle" cx="0" cy="0" r="16" />
+          <text class="skill-node-text" x="0" y="4">EMP</text>
+        </g>
+
+        <g transform="translate(300, 300)">
+          <circle cx="0" cy="0" r="12" fill="var(--spider-red)" filter="drop-shadow(0 0 5px var(--spider-red))" />
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <div class="section-divider-wrap" id="divider-4">
+    <div class="divider-thread"></div>
+    <svg class="divider-spider" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="14" />
+      <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50 M35,46 C24,45 16,58 10,70" stroke="currentColor" stroke-width="4.5" fill="none"/>
+      <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50 M65,46 C76,45 84,58 90,70" stroke="currentColor" stroke-width="4.5" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- ==========================================================================
+       📬 CONTACT — THE SIGNAL (POSTCARD DESIGN)
+       ========================================================================== -->
+  <section id="contact" class="section-wrap" aria-label="Contact Postcard">
+    <svg class="corner-web corner-web-tl" viewBox="0 0 100 100">
+      <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L40,90 M0,0 L90,40" stroke="currentColor"/>
+      <path d="M0,20 A20,20 0 0,0 20,0 M0,45 A45,45 0 0,0 45,0 M0,75 A75,75 0 0,0 75,0" stroke="currentColor" fill="none"/>
+    </svg>
+    <svg class="corner-web corner-web-br" viewBox="0 0 100 100">
+      <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L40,90 M0,0 L90,40" stroke="currentColor"/>
+      <path d="M0,20 A20,20 0 0,0 20,0 M0,45 A45,45 0 0,0 45,0 M0,75 A75,75 0 0,0 75,0" stroke="currentColor" fill="none"/>
+    </svg>
+
+    <div class="comic-header-box" style="transform: rotate(2deg); left: 50%; transform: translateX(-50%) rotate(2deg); text-align: center;">
+      <h2 class="comic-header-title" id="neon-contact-title">Send the Signal</h2>
+    </div>
+
+    <!-- Retro Mysuru Postcard contact panel -->
+    <div class="contact-card-box">
+      <!-- Success indicator -->
+      <div id="contact-success-spider" class="success-spider-drop">
+        <div class="success-silk-line"></div>
+        <svg class="success-spider-body" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="14" />
+          <ellipse cx="50" cy="30" rx="9" ry="8" />
+          <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50" stroke="currentColor" stroke-width="4" fill="none"/>
+          <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50" stroke="currentColor" stroke-width="4" fill="none"/>
+          <ellipse cx="46" cy="27" rx="2" ry="4" fill="#fff" />
+          <ellipse cx="54" cy="27" rx="2" ry="4" fill="#fff" />
+        </svg>
+      </div>
+
+      <div class="postcard-split">
+        <!-- Form Side -->
+        <div>
+          <p style="margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.6; color: rgba(255,255,255,0.7);">
+            "Have an interesting idea, want to collaborate on something meaningful, or just want to share a good warm cup of Mysuru filter coffee? Write to me — I'd love to hear your story."
+          </p>
+
+          <form id="signal-form" onsubmit="handleFormSubmit(event)">
+            <div class="input-field-group">
+              <input type="text" id="user-name" class="form-input-ctrl" placeholder=" " required>
+              <label class="floating-field-label" for="user-name">Your Codename</label>
+              <span class="input-border-thread"></span>
+            </div>
+
+            <div class="input-field-group">
+              <input type="email" id="user-email" class="form-input-ctrl" placeholder=" " required>
+              <label class="floating-field-label" for="user-email">Signal Frequency (Email)</label>
+              <span class="input-border-thread"></span>
+            </div>
+
+            <div class="input-field-group">
+              <textarea id="user-msg" class="form-input-ctrl" rows="4" placeholder=" " style="resize: none;" required></textarea>
+              <label class="floating-field-label" for="user-msg">The Signal (Your Message)</label>
+              <span class="input-border-thread"></span>
+            </div>
+
+            <div class="submit-wrap-box">
+              <button type="submit" id="submit-signal-btn" class="cocoon-btn">Shoot Your Shot 🕸️</button>
+              <svg class="cocoon-svg-lines" viewBox="0 0 280 60" id="cocoon-overlay">
+                <path class="cocoon-silk-path" d="M0,30 L280,30" />
+                <path class="cocoon-silk-path" d="M10,10 L270,50" style="animation-delay: 0.1s;" />
+                <path class="cocoon-silk-path" d="M10,50 L270,10" style="animation-delay: 0.2s;" />
+                <path class="cocoon-silk-path" d="M0,0 Q140,50 280,0" style="animation-delay: 0.3s;" />
+                <path class="cocoon-silk-path" d="M0,60 Q140,10 280,60" style="animation-delay: 0.4s;" />
+              </svg>
+            </div>
+          </form>
+        </div>
+
+        <!-- Postcard Details / Address Side -->
+        <div style="position: relative;">
+          <div class="postcard-divider"></div>
+
+          <!-- Postage Stamp Watermark with high detail Mysore ink cancellation waves -->
+          <div class="stamp-container" style="position: relative;">
+            <!-- Ink cancellation waves SVG overlay -->
+            <svg style="position: absolute; top: -10px; left: -20px; width: 150px; height: 150px; pointer-events: none; z-index: 5;" viewBox="0 0 100 100">
+              <path d="M0,30 Q30,10 60,30 T120,30 M0,45 Q30,25 60,45 T120,45 M0,60 Q30,40 60,60 T120,60" fill="none" stroke="rgba(226, 54, 54, 0.4)" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <circle cx="50" cy="50" r="35" fill="none" stroke="rgba(226, 54, 54, 0.35)" stroke-width="1.5"/>
+              <text x="50" y="54" fill="rgba(226, 54, 54, 0.4)" font-family="monospace" font-size="6" text-anchor="middle" letter-spacing="1">26-05-2026</text>
+            </svg>
+            <span class="stamp-price">POSTAGE 5 RS</span>
+            <svg class="stamp-spider" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="14" />
+              <ellipse cx="50" cy="30" rx="9" ry="8" />
+              <path d="M38,28 C28,20 18,24 8,34 M36,36 C25,32 15,40 8,50" stroke="currentColor" stroke-width="4" fill="none"/>
+              <path d="M62,28 C72,20 82,24 92,34 M64,36 C75,32 85,40 92,50" stroke="currentColor" stroke-width="4" fill="none"/>
+            </svg>
+            <span class="stamp-city">MYSURU</span>
+          </div>
+
+          <div class="address-box">
+            <div class="address-line">
+              <strong>TO:</strong>
+            </div>
+            <div class="address-line" style="font-size: 1.2rem; color: #fff; font-weight: 900; letter-spacing: 1px; text-shadow: 2px 2px 0px var(--spider-blue);">
+              Rohit U
+            </div>
+            <div class="address-line">
+              <strong>MAIL:</strong> rohitumys11@gmail.com
+            </div>
+            <div class="address-line">
+              <strong>LOC:</strong> Mysuru, Karnataka, India
+            </div>
+            <div class="address-line">
+              <strong>FREQ:</strong> 800 - 200 Hz [VHF]
+            </div>
+            <div class="address-line">
+              <strong>ZIP:</strong> 570001 (Mysore Post)
+            </div>
+          </div>
+
+          <!-- Advanced Plucked Threads Social links -->
+          <ul class="social-links-container">
+            <li class="social-thread-column" onclick="playPluckSound(0)">
+              <svg class="social-string-svg">
+                <path id="social-string-0" class="social-string-path" d="M15,0 L15,60" />
+              </svg>
+              <div class="social-orb-button">IN</div>
+            </li>
+            <li class="social-thread-column" onclick="playPluckSound(1)">
+              <svg class="social-string-svg">
+                <path id="social-string-1" class="social-string-path" d="M15,0 L15,60" />
+              </svg>
+              <div class="social-orb-button">GH</div>
+            </li>
+            <li class="social-thread-column" onclick="playPluckSound(2)">
+              <svg class="social-string-svg">
+                <path id="social-string-2" class="social-string-path" d="M15,0 L15,60" />
+              </svg>
+              <div class="social-orb-button">TW</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       12. FOOTER & DETAILS
+       ========================================================================== -->
+  <footer id="footer" aria-label="Footer">
+    <p class="footer-text">Hand-bound & Crafted with curiosity — Rohit U &copy; 2026</p>
+  </footer>
+
+  <!-- ==========================================================================
+       14. MODULES & JS ENGINES (VANILLA SCRIPTS)
+       ========================================================================== -->
+  <script>
+    /* ==========================================================================
+       A. SOUND DESIGN (WEB AUDIO API SYNTHESIZER ENGINE)
+       ========================================================================== */
+    class SoundFXEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContextClass();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      toggle() {
+        this.enabled = !this.enabled;
+        if (this.enabled) {
+          this.init();
+        }
+        return this.enabled;
+      }
+
+      playThwip() {
+        if (!this.enabled || !this.ctx) return;
+        this.init();
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(200, now + 0.08);
+
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.5, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.08);
+      }
+
+      playCrack() {
+        if (!this.enabled || !this.ctx) return;
+        this.init();
+
+        const now = this.ctx.currentTime;
+        const bufferSize = this.ctx.sampleRate * 0.04;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1500, now);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        noise.start(now);
+        noise.stop(now + 0.04);
+      }
+
+      playWhoosh() {
+        if (!this.enabled || !this.ctx) return;
+        this.init();
+
+        const now = this.ctx.currentTime;
+        const duration = 0.15;
+        const bufferSize = this.ctx.sampleRate * duration;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(100, now);
+        filter.frequency.exponentialRampToValueAtTime(2200, now + duration * 0.5);
+        filter.frequency.exponentialRampToValueAtTime(100, now + duration);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.3, now + duration * 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        noise.start(now);
+        noise.stop(now + duration);
+      }
+
+      playSpiderSense() {
+        if (!this.enabled || !this.ctx) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const duration = 0.35;
+        
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const modGain = this.ctx.createGain();
+        const mainGain = this.ctx.createGain();
+        
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(3200, now);
+        osc1.frequency.linearRampToValueAtTime(4500, now + duration);
+        
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(35, now);
+        
+        modGain.gain.setValueAtTime(800, now);
+        
+        mainGain.gain.setValueAtTime(0.01, now);
+        mainGain.gain.linearRampToValueAtTime(0.12, now + 0.05);
+        mainGain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        
+        osc2.connect(modGain);
+        modGain.connect(osc1.frequency);
+        
+        osc1.connect(mainGain);
+        mainGain.connect(this.ctx.destination);
+        
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + duration);
+        osc2.stop(now + duration);
+      }
+    }
+
+    const soundEngine = new SoundFXEngine();
+
+    const soundBtn = document.getElementById('sound-btn');
+    soundBtn.addEventListener('click', () => {
+      const active = soundEngine.toggle();
+      soundBtn.textContent = active ? '🔊' : '🔇';
+      if (active) {
+        soundEngine.playThwip();
+      }
+    });
+
+    function playPluckSound(index) {
+      soundEngine.playThwip();
+      pluckStringAnimation(index);
+    }
+
+    /* Plucked strings flex transition */
+    function pluckStringAnimation(index) {
+      const path = document.getElementById(`social-string-${index}`);
+      if (!path) return;
+
+      let frame = 0;
+      const totalFrames = 30;
+
+      function renderPluck() {
+        if (frame < totalFrames) {
+          // Bow decay amplitude math using cosine
+          const amp = Math.cos(frame * 0.4) * (20 * (1 - frame / totalFrames));
+          path.setAttribute('d', `M15,0 Q${15 + amp},30 15,60`);
+          frame++;
+          requestAnimationFrame(renderPluck);
+        } else {
+          path.setAttribute('d', 'M15,0 L15,60');
+        }
+      }
+      renderPluck();
+    }
+
+
+    /* ==========================================================================
+       B. LOADER FLOW CONTROLLER (PROACTIVE STATUS ENGINE)
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      const bar = document.getElementById('loader-progress-bar');
+      const textTarget = document.getElementById('loader-status-target');
+      
+      const statuses = [
+        "CALIBRATING SPIDEY-SENSE TELEMETRY... 🐝",
+        "LOADING DIMENSIONAL CODES... 📡",
+        "THWIP-PULLING ACTIVE PROJECTS... 🕸️",
+        "COMPUTING DYNAMIC RIGID KINEMATICS... 🚀",
+        "ESTABLISHING PEER MESH SIGNALS... 📶",
+        "PREPARING HERO INTRUSION SYSTEM... 🕷️"
+      ];
+      
+      let progress = 0;
+      
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 8) + 4;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          
+          textTarget.textContent = "SYNCHRONIZATION COMPLETED! 💥";
+          bar.style.width = "100%";
+          
+          setTimeout(() => {
+            soundEngine.playCrack();
+            soundEngine.playWhoosh();
+            
+            const loader = document.getElementById('loader');
+            loader.classList.add('shattered');
+            
+            setTimeout(() => {
+              triggerHeroEntry();
+            }, 550);
+          }, 350);
+        } else {
+          bar.style.width = `${progress}%`;
+          const idx = Math.min(statuses.length - 1, Math.floor(progress / (100 / statuses.length)));
+          textTarget.textContent = statuses[idx];
+        }
+      }, 95);
+    });
+
+
+    /* ==========================================================================
+       C. HERO OPENER TIMELINES
+       ========================================================================== */
+    function triggerHeroEntry() {
+      const swingSpidey = document.getElementById('hero-swinging-spidey');
+      swingSpidey.classList.add('spidey-swing-active');
+      soundEngine.playWhoosh();
+
+      setTimeout(() => {
+        swingSpidey.style.display = 'none';
+        const ledgeSpidey = document.getElementById('hero-ledge-spidey');
+        ledgeSpidey.classList.add('landed');
+
+        soundEngine.playCrack();
+
+        const shockwave = document.getElementById('hero-landing-shockwave');
+        shockwave.classList.add('shockwave-active');
+
+        const letters = document.querySelectorAll('.headline-letter');
+        letters.forEach(letter => {
+          letter.classList.add('letter-spring-active');
+        });
+
+        const thread1 = document.getElementById('anchor-thread-1');
+        const thread2 = document.getElementById('anchor-thread-2');
+        thread1.classList.add('anchor-thread-active');
+        thread2.classList.add('anchor-thread-active');
+
+        setTimeout(() => {
+          typeSubheadline();
+        }, 800);
+
+      }, 2100);
+    }
+
+    function typeSubheadline() {
+      const target = document.getElementById('typewriter-sub');
+      const text = "Designing thoughtful web applications and interactive experiences.";
+      let index = 0;
+
+      target.classList.add('subheadline-cursor-pulse');
+
+      function typeChar() {
+        if (index < text.length) {
+          target.textContent += text.charAt(index);
+          index++;
+          setTimeout(typeChar, 40);
+        }
+      }
+      typeChar();
+    }
+
+
+    /* ==========================================================================
+       D. ROOFTOP PARALLAX SCROLL & MOUSE
+       ========================================================================== */
+    const bgCity = document.getElementById('p-bg-city');
+    const midCity = document.getElementById('p-mid-city');
+    const ledge = document.getElementById('p-ledge');
+
+    window.addEventListener('mousemove', (e) => {
+      const wWidth = window.innerWidth / 2;
+      const wHeight = window.innerHeight / 2;
+      const offsetX = (wWidth - e.clientX) * 0.03;
+      const offsetY = (wHeight - e.clientY) * 0.03;
+
+      bgCity.style.transform = `translate3d(${offsetX * 0.2}px, ${offsetY * 0.1}px, 0)`;
+      midCity.style.transform = `translate3d(${offsetX * 0.5}px, ${offsetY * 0.3}px, 0)`;
+      ledge.style.transform = `translate3d(${offsetX * 1.1}px, ${offsetY * 0.5}px, 0)`;
+    });
+
+
+    /* ==========================================================================
+       E. INTERACTIVE AMBIENT WEBS CANVAS (HERO BG PARTICLES)
+       ========================================================================== */
+    const ambientCanvas = document.getElementById('ambient-particles-canvas');
+    const aCtx = ambientCanvas.getContext('2d');
+
+    let particles = [];
+    let width = 0;
+    let height = 0;
+    let mouse = { x: null, y: null, radius: 120 };
+
+    function resizeAmbientCanvas() {
+      width = ambientCanvas.width = ambientCanvas.offsetWidth;
+      height = ambientCanvas.height = ambientCanvas.offsetHeight;
+      initParticles();
+    }
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.baseX = this.x;
+        this.baseY = this.y;
+        this.size = Math.random() * 2 + 1;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.density = (Math.random() * 20) + 10;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > width) this.vx *= -1;
+        if (this.y < 0 || this.y > height) this.vy *= -1;
+
+        if (mouse.x !== null) {
+          const dx = mouse.x - this.x;
+          const dy = mouse.y - this.y;
+          const distance = Math.hypot(dx, dy);
+
+          if (distance < mouse.radius) {
+            const force = (mouse.radius - distance) / mouse.radius;
+            const forceX = (dx / distance) * force * this.density;
+            const forceY = (dy / distance) * force * this.density;
+
+            this.x -= forceX;
+            this.y -= forceY;
+          }
+        }
+      }
+
+      draw() {
+        aCtx.fillStyle = 'rgba(255,255,255,0.4)';
+        aCtx.beginPath();
+        aCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        aCtx.fill();
+      }
+    }
+
+    function initParticles() {
+      particles = [];
+      const density = Math.min(220, Math.floor((width * height) / 8000));
+      for (let i = 0; i < density; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function animateParticles() {
+      aCtx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.hypot(dx, dy);
+
+          if (distance < 90) {
+            const opacity = (1 - (distance / 90)) * 0.12;
+            aCtx.strokeStyle = `rgba(255,255,255,${opacity})`;
+            aCtx.lineWidth = 0.5;
+            aCtx.beginPath();
+            aCtx.moveTo(particles[i].x, particles[i].y);
+            aCtx.lineTo(particles[j].x, particles[j].y);
+            aCtx.stroke();
+          }
+        }
+      }
+
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+
+      requestAnimationFrame(animateParticles);
+    }
+
+    ambientCanvas.addEventListener('mousemove', (e) => {
+      const rect = ambientCanvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    });
+
+    ambientCanvas.addEventListener('mouseleave', () => {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    window.addEventListener('resize', resizeAmbientCanvas);
+    resizeAmbientCanvas();
+    animateParticles();
+
+
+    /* ==========================================================================
+       F. CURSOR WEB TRAIL (HTML CANVAS GRAPHICS ENGINE)
+       ========================================================================== */
+    const cursorCanvas = document.getElementById('cursor-canvas');
+    const cCtx = cursorCanvas.getContext('2d');
+
+    let trail = [];
+    let activeWebThwips = [];
+
+    let lastMouseX = null;
+    let lastMouseY = null;
+    let lastMouseMoveTime = null;
+    let spideySenseTimeout = null;
+
+    function resizeCursorCanvas() {
+      cursorCanvas.width = window.innerWidth;
+      cursorCanvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      const now = Date.now();
+      trail.push({
+        x: e.clientX,
+        y: e.clientY,
+        time: now
+      });
+
+      // Calculate instant acceleration for Spider-Sense tingle
+      if (lastMouseX !== null && lastMouseMoveTime !== null) {
+        const dx = e.clientX - lastMouseX;
+        const dy = e.clientY - lastMouseY;
+        const dist = Math.hypot(dx, dy);
+        const dt = now - lastMouseMoveTime;
+        const speed = dist / dt;
+
+        if (speed > 4.5 && dt > 0 && !document.body.classList.contains('spidey-sense-active')) {
+          document.body.classList.add('spidey-sense-active');
+          soundEngine.playSpiderSense();
+
+          clearTimeout(spideySenseTimeout);
+          spideySenseTimeout = setTimeout(() => {
+            document.body.classList.remove('spidey-sense-active');
+          }, 600);
+        }
+      }
+
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+      lastMouseMoveTime = now;
+    });
+
+    function drawCursorTrail() {
+      cCtx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
+      const now = Date.now();
+      const lifespan = 300;
+
+      // Draw active elastic corner web thwips
+      const activeThwipsFiltered = [];
+      activeWebThwips.forEach(thwip => {
+        const elapsed = now - thwip.startTime;
+        if (elapsed < thwip.duration) {
+          const progress = elapsed / thwip.duration;
+          const ratio = 1 - progress;
+          
+          // Dampening sine oscillation
+          const amp = Math.sin(elapsed * thwip.frequency) * thwip.amplitude * ratio;
+          
+          const dx = thwip.targetX - thwip.startX;
+          const dy = thwip.targetY - thwip.startY;
+          const len = Math.hypot(dx, dy);
+          const px = -dy / len;
+          const py = dx / len;
+          
+          const midX = thwip.startX + dx * 0.5 + px * amp;
+          const midY = thwip.startY + dy * 0.5 + py * amp;
+          
+          // Outer blur glow
+          cCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+          cCtx.lineWidth = ratio * 6;
+          cCtx.beginPath();
+          cCtx.moveTo(thwip.startX, thwip.startY);
+          cCtx.quadraticCurveTo(midX, midY, thwip.targetX, thwip.targetY);
+          cCtx.stroke();
+
+          // Silk inner thread
+          cCtx.strokeStyle = `rgba(255, 255, 255, ${ratio * 0.95})`;
+          cCtx.lineWidth = ratio * 2;
+          cCtx.beginPath();
+          cCtx.moveTo(thwip.startX, thwip.startY);
+          cCtx.quadraticCurveTo(midX, midY, thwip.targetX, thwip.targetY);
+          cCtx.stroke();
+          
+          activeThwipsFiltered.push(thwip);
+        }
+      });
+      activeWebThwips = activeThwipsFiltered;
+
+      // Draw trailing mouse thread webs
+      trail = trail.filter(pt => now - pt.time < lifespan);
+
+      if (trail.length > 1) {
+        for (let i = 1; i < trail.length; i++) {
+          const pt = trail[i];
+          const age = now - pt.time;
+          const ratio = 1 - (age / lifespan);
+
+          cCtx.strokeStyle = `rgba(226, 54, 54, ${ratio * 0.65})`;
+          cCtx.lineWidth = ratio * 2.5;
+          cCtx.beginPath();
+          cCtx.moveTo(trail[i-1].x, trail[i-1].y);
+          cCtx.lineTo(pt.x, pt.y);
+          cCtx.stroke();
+        }
+      }
+
+      requestAnimationFrame(drawCursorTrail);
+    }
+
+    window.addEventListener('resize', resizeCursorCanvas);
+    resizeCursorCanvas();
+    drawCursorTrail();
+
+
+    /* ==========================================================================
+       G. INTERACTION COMIC BUBBLE AND SOUND ON CLICK
+       ========================================================================== */
+    const comicWords = ['THWIP!', 'BAM!', 'POW!', 'SHATTER!', 'CRACK!'];
+    
+    window.addEventListener('click', (e) => {
+      if (e.target.closest('button, a, input, textarea')) return;
+
+      // Vintage comic bubble
+      const bubble = document.createElement('div');
+      bubble.className = 'comic-click-bubble';
+      bubble.style.left = `${e.clientX}px`;
+      bubble.style.top = `${e.clientY}px`;
+      
+      const randomWord = comicWords[Math.floor(Math.random() * comicWords.length)];
+      bubble.textContent = randomWord;
+      
+      document.body.appendChild(bubble);
+
+      soundEngine.playCrack();
+      soundEngine.playThwip();
+
+      // Shoot dynamic web line from closest viewport corner
+      const corners = [
+        { x: 0, y: 0 },
+        { x: window.innerWidth, y: 0 },
+        { x: 0, y: window.innerHeight },
+        { x: window.innerWidth, y: window.innerHeight }
+      ];
+      let closestCorner = corners[0];
+      let minDistance = Infinity;
+      corners.forEach(corner => {
+        const d = Math.hypot(corner.x - e.clientX, corner.y - e.clientY);
+        if (d < minDistance) {
+          minDistance = d;
+          closestCorner = corner;
+        }
+      });
+
+      activeWebThwips.push({
+        startX: closestCorner.x,
+        startY: closestCorner.y,
+        targetX: e.clientX,
+        targetY: e.clientY,
+        startTime: Date.now(),
+        duration: 450,
+        amplitude: 40,
+        frequency: 0.09
+      });
+
+      setTimeout(() => {
+        bubble.remove();
+      }, 500);
+    });
+
+
+    /* ==========================================================================
+       H. ACTIVE SCROLL TRACKER & NAVBAR INDICATOR SPIDER
+       ========================================================================== */
+    const sections = document.querySelectorAll('header, section');
+    const navItems = document.querySelectorAll('.nav-link-item a');
+    const spiderIndicator = document.getElementById('navbar-spider-indicator');
+    const navbar = document.getElementById('navbar');
+
+    let currentActiveIndex = -1;
+
+    function handleScrollTracker() {
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+
+      let activeSecId = '';
+      const triggerBound = window.innerHeight * 0.4;
+
+      sections.forEach(sec => {
+        const top = sec.offsetTop;
+        const height = sec.offsetHeight;
+        if (window.scrollY >= top - triggerBound && window.scrollY < top + height - triggerBound) {
+          activeSecId = sec.getAttribute('id');
+        }
+      });
+
+      if (!activeSecId && window.scrollY < 200) {
+        activeSecId = 'hero';
+      }
+
+      navItems.forEach((link, idx) => {
+        const linkId = link.getAttribute('href').substring(1);
+        if (linkId === activeSecId) {
+          if (currentActiveIndex !== idx) {
+            currentActiveIndex = idx;
+            positionSpiderIndicator(link);
+            soundEngine.playWhoosh();
+          }
+        }
+      });
+    }
+
+    function positionSpiderIndicator(targetLink) {
+      const linkRect = targetLink.getBoundingClientRect();
+      const navRect = navbar.getBoundingClientRect();
+
+      const leftOffset = linkRect.left - navRect.left + (linkRect.width / 2);
+
+      spiderIndicator.style.opacity = '1';
+      spiderIndicator.style.left = `${leftOffset}px`;
+
+      spiderIndicator.classList.add('spider-crawling');
+      setTimeout(() => {
+        spiderIndicator.classList.remove('spider-crawling');
+      }, 450);
+    }
+
+    window.addEventListener('scroll', handleScrollTracker);
+
+
+    /* ==========================================================================
+       I. INTERSECTIONOBSERVERS (SCROLL LINKED IN-VIEW TRIGGERS)
+       ========================================================================== */
+    const elementsToWatch = document.querySelectorAll('.section-wrap, .timeline-entry-row, .project-card-container, .skills-svg-web');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+
+          if (entry.target.id === 'about') {
+            triggerAboutStoryTriggers();
+          }
+
+          if (entry.target.classList.contains('timeline-entry-row')) {
+            soundEngine.playWhoosh();
+          }
+
+          const divider = entry.target.querySelector('.divider-spider');
+          if (divider) {
+            divider.classList.add('traverse');
+          }
+        }
+      });
+    }, {
+      threshold: 0.15
+    });
+
+    elementsToWatch.forEach(el => observer.observe(el));
+
+    const dividers = document.querySelectorAll('.section-divider-wrap');
+    dividers.forEach(div => observer.observe(div));
+
+
+    /* ==========================================================================
+       J. ABOUT SECTION TRIGGERS (TYPEWRITER & COUNTERS)
+       ========================================================================== */
+    let aboutStoryStarted = false;
+
+    function triggerAboutStoryTriggers() {
+      if (aboutStoryStarted) return;
+      aboutStoryStarted = true;
+
+      const typewriterTarget = document.getElementById('vintage-typewriter-target');
+      
+      const bioText = "Dear Reader, I discovered the world of computer applications not just as a set of logical instructions, but as a digital canvas for storytelling. As a BCA/Integrated MCA student at Amrita Vishwa Vidyapeetham, my journey has been driven by a strong passion for full-stack web development and intuitive UI design. For me, frontend interfaces and backend APIs are two halves of a single, cohesive experience. I build clean, functional, and thoughtfully crafted digital products that solve real-world problems. My approach is simple: I write code with purpose and design with intention. From system architectures to minor hover transitions, every pixel represents a conscious design decision.";
+      
+      const words = bioText.split(' ');
+      let wordIdx = 0;
+      typewriterTarget.textContent = '';
+
+      function typeWord() {
+        if (wordIdx < words.length) {
+          typewriterTarget.textContent += words[wordIdx] + ' ';
+          wordIdx++;
+          setTimeout(typeWord, 50);
+        }
+      }
+      typeWord();
+    }
+
+
+
+
+    /* ==========================================================================
+       K. CHRONICLE SCROLL-PROGRESS LINE PATH
+       ========================================================================== */
+    const timelineSpine = document.getElementById('timeline-scroll-progress');
+    const timelineContainer = document.querySelector('.experience-timeline-container');
+
+    window.addEventListener('scroll', () => {
+      if (!timelineContainer) return;
+      const rect = timelineContainer.getBoundingClientRect();
+      const containerHeight = rect.height;
+      const scrollTriggerDepth = window.innerHeight * 0.45;
+      const progressTop = -rect.top + scrollTriggerDepth;
+      
+      let percent = progressTop / containerHeight;
+      percent = Math.max(0, Math.min(1, percent));
+
+      timelineSpine.setAttribute('y2', `${percent * 100}%`);
+    });
+
+
+    /* ==========================================================================
+       L. SKILLS INTERACTIVE VECTOR CONNECTIONS & SPEECH BUBBLE
+       ========================================================================== */
+    const skillsBubble = document.getElementById('skills-comic-bubble');
+    const skillsContainer = document.getElementById('skills');
+
+    document.querySelectorAll('.skill-node-orb').forEach(orb => {
+      orb.addEventListener('mouseenter', (e) => {
+        const name = orb.getAttribute('data-name');
+        const percent = orb.getAttribute('data-percent');
+
+        skillsBubble.querySelector('span').textContent = `${name} - ${percent}`;
+        skillsBubble.classList.add('active');
+
+        const orbRect = orb.getBoundingClientRect();
+        const containerRect = skillsContainer.getBoundingClientRect();
+
+        const xPos = orbRect.left - containerRect.left + (orbRect.width / 2);
+        const yPos = orbRect.top - containerRect.top - 10;
+
+        skillsBubble.style.left = `${xPos}px`;
+        skillsBubble.style.top = `${yPos}px`;
+
+        const orbName = name.toLowerCase();
+        let querySelectorClass = '';
+        if (orbName.includes('javascript') || orbName.includes('react') || orbName.includes('ux') || orbName.includes('solving')) {
+          querySelectorClass = '.c-link-js';
+        } else if (orbName.includes('html') || orbName.includes('vite') || orbName.includes('animations') || orbName.includes('systems')) {
+          querySelectorClass = '.c-link-css';
+        } else {
+          querySelectorClass = '.c-link-node';
+        }
+
+        document.querySelectorAll(querySelectorClass).forEach(line => {
+          line.classList.add('glow-active');
+        });
+
+        soundEngine.playThwip();
+      });
+
+      orb.addEventListener('mouseleave', () => {
+        skillsBubble.classList.remove('active');
+        document.querySelectorAll('.web-connecting-path').forEach(line => {
+          line.classList.remove('glow-active');
+        });
+      });
+    });
+
+
+    /* ==========================================================================
+       M. CONTACT COCOON FORM CONTROLLER & SOUND TRIGGER
+       ========================================================================== */
+    function handleFormSubmit(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('user-name').value;
+      const email = document.getElementById('user-email').value;
+      const msg = document.getElementById('user-msg').value;
+
+      if (!name || !email || !msg) return;
+
+      const submitBtn = document.getElementById('submit-signal-btn');
+      const cocoonOverlay = document.getElementById('cocoon-overlay');
+
+      soundEngine.playThwip();
+
+      submitBtn.classList.add('spinning');
+      cocoonOverlay.classList.add('active');
+
+      setTimeout(() => {
+        submitBtn.classList.remove('spinning');
+        cocoonOverlay.classList.remove('active');
+        submitBtn.style.backgroundColor = '#00c853';
+        submitBtn.style.borderColor = '#00c853';
+        submitBtn.textContent = 'Signal Dispatched! ✓';
+        soundEngine.playCrack();
+
+        const successSpider = document.getElementById('contact-success-spider');
+        successSpider.classList.add('triggered');
+
+        setTimeout(() => {
+          document.getElementById('signal-form').reset();
+          submitBtn.style.backgroundColor = 'var(--spider-red)';
+          submitBtn.style.borderColor = '#000';
+          submitBtn.textContent = 'Shoot Your Shot 🕸️';
+          successSpider.classList.remove('triggered');
+        }, 3200);
+
+      }, 1500);
+    }
+
+
+    /* ==========================================================================
+       N. MOBILE OVERLAY HAMBURGER TOGGLES
+       ========================================================================== */
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileOverlay = document.getElementById('mobile-nav-overlay');
+
+    hamburgerBtn.addEventListener('click', toggleMobileMenu);
+
+    function toggleMobileMenu() {
+      const isOpen = hamburgerBtn.classList.contains('open');
+      if (isOpen) {
+        hamburgerBtn.classList.remove('open');
+        mobileOverlay.classList.remove('open');
+      } else {
+        hamburgerBtn.classList.add('open');
+        mobileOverlay.classList.add('open');
+        soundEngine.playWhoosh();
+      }
+    }
+
+
+    /* ==========================================================================
+       O. EASTER EGGS ENGINE (KONAMI, TRIPLE-CLICKS, & IDLE CHECKS)
+       ========================================================================== */
+    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    let konamiIdx = 0;
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === konamiCode[konamiIdx]) {
+        konamiIdx++;
+        if (konamiIdx === konamiCode.length) {
+          triggerGlitchSequence();
+          konamiIdx = 0;
+        }
+      } else {
+        konamiIdx = 0;
+      }
+    });
+
+    function triggerGlitchSequence() {
+      soundEngine.playCrack();
+      soundEngine.playWhoosh();
+
+      document.body.classList.add('glitch-active');
+      document.body.classList.add('glitch-text-mode');
+      document.getElementById('glitch-halftone-overlay').classList.add('active');
+
+      setTimeout(() => {
+        document.body.classList.remove('glitch-active');
+        document.body.classList.remove('glitch-text-mode');
+        document.getElementById('glitch-halftone-overlay').classList.remove('active');
+        soundEngine.playThwip();
+      }, 2500);
+    }
+
+    let clickCount = 0;
+    let clickTimer = null;
+
+    window.addEventListener('click', (e) => {
+      clickCount++;
+      if (clickCount === 1) {
+        clickTimer = setTimeout(() => {
+          clickCount = 0;
+        }, 400);
+      } else if (clickCount === 3) {
+        clearTimeout(clickTimer);
+        clickCount = 0;
+        triggerTripleClickSwinger();
+      }
+    });
+
+    function triggerTripleClickSwinger() {
+      const swinger = document.getElementById('triple-click-swinger');
+      swinger.classList.remove('swinger-moving');
+      void swinger.offsetWidth;
+
+      swinger.classList.add('swinger-moving');
+      soundEngine.playWhoosh();
+
+      setTimeout(() => {
+        swinger.classList.remove('swinger-moving');
+      }, 2500);
+    }
+
+    let idleTime = 0;
+    const idleLimit = 30;
+    const rappellerNode = document.getElementById('idle-rappeller-node');
+
+    function resetIdleTimer() {
+      idleTime = 0;
+      if (rappellerNode.style.top === '0px') {
+        rappellerNode.style.top = '-200px';
+      }
+    }
+
+    ['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => {
+      window.addEventListener(evt, resetIdleTimer);
+    });
+
+    setInterval(() => {
+      idleTime++;
+      if (idleTime >= idleLimit) {
+        rappellerNode.style.top = '0px';
+      }
+    }, 1000);
+
+    const navLogo = document.getElementById('navbar-logo-spider');
+    navLogo.addEventListener('mouseenter', () => {
+      navLogo.classList.add('logo-waving');
+      soundEngine.playThwip();
+    });
+
+    navLogo.addEventListener('mouseleave', () => {
+      navLogo.classList.remove('logo-waving');
+    });
+
+    /* Real-Time mouse tilting effect on cards (3D Transform physics) */
+    const cards = document.querySelectorAll('.project-card-container');
+    cards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        document.body.classList.add('spidey-sense-active');
+        soundEngine.playSpiderSense();
+
+        clearTimeout(spideySenseTimeout);
+        spideySenseTimeout = setTimeout(() => {
+          document.body.classList.remove('spidey-sense-active');
+        }, 500);
+      });
+
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const midX = rect.width / 2;
+        const midY = rect.height / 2;
+
+        // Angle rotation factors
+        const rotY = ((x - midX) / midX) * 15; // Rotates Y up to 15deg
+        const rotX = -((y - midY) / midY) * 15; // Rotates X up to 15deg
+
+        const inner = card.querySelector('.project-card-inner');
+        inner.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.04)`;
+      });
+
+      card.addEventListener('mouseleave', () => {
+        const inner = card.querySelector('.project-card-inner');
+        inner.style.transform = 'rotateX(8deg) rotateY(0deg) scale(1)';
+      });
+    });
+  </script>
+</body>
+</html>
